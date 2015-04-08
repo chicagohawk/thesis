@@ -1,0 +1,27 @@
+\contentsline {section}{\numberline {1}Background}{4}
+\contentsline {subsection}{\numberline {1.1}Optimization based on gray-box PDE simulation}{4}
+\contentsline {subsection}{\numberline {1.2}Problem setup}{5}
+\contentsline {subsection}{\numberline {1.3}Gradient-free and gradient-based optimization}{5}
+\contentsline {subsection}{\numberline {1.4}Proposal outline}{6}
+\contentsline {section}{\numberline {2}Twin model}{7}
+\contentsline {subsection}{\numberline {2.1}Review of surrogate methods}{7}
+\contentsline {subsection}{\numberline {2.2}Envision of twin model}{7}
+\contentsline {subsection}{\numberline {2.3}Review of system identification}{8}
+\contentsline {subsection}{\numberline {2.4}Formulation of twin model with fixed structure}{11}
+\contentsline {subsection}{\numberline {2.5}Adjoint-based parameter estimation of twin model}{12}
+\contentsline {subsection}{\numberline {2.6}Basis library for twin model}{12}
+\contentsline {subsection}{\numberline {2.7}Numerical example: twin model with fixed structure}{15}
+\contentsline {subsection}{\numberline {2.8}Twin model with adaptive structure}{18}
+\contentsline {subsection}{\numberline {2.9}Future work}{22}
+\contentsline {section}{\numberline {3}Optimization with twin model}{24}
+\contentsline {subsection}{\numberline {3.1}Motivation of the Bayesian approach}{24}
+\contentsline {subsection}{\numberline {3.2}Bayesian modeling of the primal and twin models}{25}
+\contentsline {subsection}{\numberline {3.3}Optimization using the posterior of the objective function}{26}
+\contentsline {subsection}{\numberline {3.4}Optimization constraints}{26}
+\contentsline {subsection}{\numberline {3.5}Complete algorithm}{26}
+\contentsline {subsection}{\numberline {3.6}Twin model validation}{26}
+\contentsline {section}{\numberline {4}Application to a high-fidelity flow simulator}{26}
+\contentsline {section}{Appendices}{26}
+\contentsline {section}{\numberline {A}Proof of theorem 1\hbox {}: global-local error}{26}
+\contentsline {section}{\numberline {B}Proof of theorem \G@refundefinedtrue \text {\normalfont \bfseries ??}\GenericWarning { }{LaTeX Warning: Reference `theorem: 2' on page 28 undefined}: gradient of twin model}{28}
+\contentsline {section}{\numberline {C}Proof of theorem \G@refundefinedtrue \text {\normalfont \bfseries ??}\GenericWarning { }{LaTeX Warning: Reference `theorem: 3' on page 28 undefined}: optimization convergence}{28}

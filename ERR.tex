@@ -1,0 +1,37 @@
+\documentclass[a4paper,onecolumn]{article}
+\usepackage{amsmath, amsthm, graphicx, amssymb, wrapfig, fullpage, subfigure, array}
+\usepackage[font=sl, labelfont={sf}, margin=1cm]{caption}
+\DeclareMathOperator{\e}{e}
+\begin{document}
+\setcounter{page}{1}
+
+
+Solve 
+$$
+\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} 
+ + \frac{\partial^2 u}{\partial z^2} =1
+$$
+on a 3D Cartesian grid, with
+$$
+0 <= x <= 1, 0 <= y = 1, 0 <= z <=1
+$$
+All $x,y,z$ axes are discretized by $n=16$ segments (finest grid). Boundary condition is
+$u=0$. Solve this equation with V-cycle multigrid. For each coarser iteration, please
+reduce the discretization on all 3 axes by a factor of 2. You can use a direct solver
+for the coarsest grid.
+Pre-smooth and post-smooth
+both with 5 relaxed Gauss-Seidel iterations. Set the relaxation factor $w=0.5$.
+We'll compare the minimum value of your multigrid solution and a direct solver's solution.
+The relative error is expected to be on the magnitude of 5\%.
+
+
+
+
+
+
+
+
+
+
+\end{document}
+

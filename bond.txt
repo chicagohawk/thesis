@@ -1,0 +1,18 @@
+Global:
+
+Emerging market:
+
+Continental:
+ALD / Asia  (No Liquidity)
+BONO / Latin American
+
+
+National:
+AUD / Australian  (Not Available)
+AUNZ / Australian & New Zealand
+BUND & BUNL / German
+CAD / Canadian
+
+US:
+TLT
+
