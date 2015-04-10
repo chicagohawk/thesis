@@ -17,7 +17,58 @@
 \includepdf[pages=-]{cover}
 $$ $$
 \newpage
+\hspace{.4\textwidth}
+\Large\textbf{Abstract}\\
+\normalsize
+
+\noindent Gray-box simulations of partial differential equations (PDE) are
+present in many engineering applications. 
+Unlike black-box simulations, we have some but limited
+insights of the PDEs in gray-box simulations.
+My thesis is interested in the optimization based on gray-box simulations,
+which is a common task in the engineering community.
+Conventional optimization practices treat the gray-box simulation
+as black-box. In many scenarios the gray-box simulation does not have adjoint implementations,
+so we can not compute sensitivities, specifically the gradients of 
+the optimization's objective function, in an efficient way. 
+When the dimension of optimization parameters is high,
+such conventional practices may require large amount of simulations which can be 
+computational prohibitable.\\
+
+\noindent My thesis proposes an efficient methodology for
+high-dimensional optimization problems by leveraging the limited insights
+about the gray-box simulations. My method constructs a physics-based surrogate, 
+called twin model.
+In contrast to conventional PDE surrogates with fixed-physics, twin model has
+flexible physics so it can be trained by morphing itself 
+to mimic the gray-box simulation. The training takes advantage of the 
+space-time solution in time-dependent simulations, or space-solution in time-independent
+simulations. These solutions generally contain much more information 
+about the gray-box simulation than the optimization's objective function alone.
+Because the twin model has the adjoint capability, the gradient of the objective function
+can be computed efficiently on twin model.\\
+
+\noindent Optimization can be performed in a multi-fidelity framework using twin model, in which
+the twin model is low-fidelity, and the gray-box simulation is high-fidelity.
+My thesis proposes a provably convergent optimization scheme that fuses
+the evaluations of the gray-box objective function with the twin model gradient.
+The 
+Cokriging, 
+
+
+
+
+
+leverage 
+In PDE constraint optimization problems
+many gray-box. Wehn the dimension is high, this problem is challenging curse
+of dimensionality. My contribution will be an approach to
+address this problem. Surrogate methods. Underlying surrogate physics based
+flexible physics.
+
+\newpage
 \tableofcontents
+
 \newpage
 \section{Background}
 \label{intro}
@@ -1266,7 +1317,8 @@ improve the twin model's accuracy for specific numerical examples.\\
 
 
 \noindent Thirdly, in section \ref{adaptive}, we discussed twin model with adaptive structure.
-The proposed approach constructs a \emph{fixed} candidate basis library, then selects a subset of basis
+The proposed approach constructs a \emph{fixed} candidate basis library 
+(Volterra series, wavelet scaling functions, and sigmoid functions), then selects a subset of basis
 from the library.
 However, the cardinality of the basis library can be high for flux functions with a large number
 of inputs, for example $F(u_1,\cdots,u_n)$ with a large $n$. Besides, the proposed basis
@@ -1309,7 +1361,8 @@ $\mathcal{C}\subseteq \mathbb{R}^d$. The evaluation of $J$ for a given $c$ requi
 solving the PDE $\mathcal{R}(u,c)=0$ which can be computational costly, such
 as large eddy simulation (LES) \cite{LES, LES oldest} 
 and direct numerical simulation (DNS) \cite{DNS} in  
-aerodynamic design problems.
+aerodynamic design problems. It is not uncommon for these simulations
+to take days, weeks, or even longer on a cluster.
 In addition to expensive evaluations of $J$, the evaluations of
 nonlinear constraints $V(c)$ can be similarly expensive. For example, 
 in airfoil design we may aim at reducing drag while keeping lift 
@@ -1322,41 +1375,41 @@ $\mathcal{C}=\mathbb{R}^d$ for simplicity.
 There are already many methods that deal with such optimizations. 
 But as mentioned in section \ref{gradfree_gradbased}, these methods are not suitable
 for our problem because they either require adjoint-based gradient of the PDE solver, 
-or suffer the curse of dimensionality. Can we utilize the twin model together
+or suffer from the curse of dimensionality. Can we utilize the twin model together
 with the primal model, and develop an optimization scheme that addresses these challenges?\\
 
 \noindent The question fits naturally into a \emph{multifidelity optimization (MFO)} framework.
 MFO performs optimization with multiple models ranging from
 low-fidelity to high-fidelity. Conventionally, low-fidelity models are cheaper to solve, but yield
 results with less credibility; high-fidelity models are more credible, but more expensive
-to solve. MFO balances computation investments between high-fidelity and low-fidelity models
+to solve. MFO balances computation investments between high- and low-fidelity models
 in order to reach optimum with overall less computation cost.
-In our problem, the primal model can be considered as high-fidelity model, and the twin model
-can be considered as low-fidelity model.\\
+In our problem, the primal model can be considered as a high-fidelity model, and the twin model
+can be considered as a low-fidelity model.\\
 
 \noindent MFO methods can take various flavors.
-For example, a MFO method can be as simple as a two-stage optimization \cite{MFO: two stage}. 
+For example, an MFO method can be as simple as a two-stage optimization \cite{MFO: two stage}. 
 In the first stage it optimizes with the low-fidelity model only. In the second stage
 it optimizes with the high-fidelity model only, using the first stage optimum as the initial guess.
 However, we are only interested in \emph{provably convergent} MFO methods.
 Based on our literature review, there are three types of such methods:
-\emph{pattern search MFO}, \emph{trust region MFO}, and \emph{Bayesian calibration MFO}.
+\emph{pattern search MFO}, \emph{trust region MFO}, and \emph{Bayesian MFO}.
 Each type can be viewed as 
 extensions to their \emph{single-fidelity} versions respectively,
 i.e. \emph{pattern search methods}, \emph{trust region methods}, and \emph{Bayesian 
-calibration methods}. In the following let's review these methods and 
+optimization methods}. In the following let's review these methods and 
 their corresponding MFO methods.\\
 
 \noindent In \emph{pattern search methods}, the objective function $J$ is evaluated at a set of
 trial points, called `mesh', adjacent to the current best $c$ in the design space. This
-step is called `poll step'.
+step is called a `poll step'.
 If improvement in $J$ is obtained, the current best $c$ is updated; otherwise, the mesh size
 is shrinked. 
 These steps are iterated until convergence \cite{Pattern Search Convergence}.
 Pattern search methods can takes advantage of low-fidelity models to reduce computation cost,
 hereby \emph{pattern search MFO}.
 It searches for improved design 
-points using low-fidelity model before deciding whether to perform a poll step on
+points using low-fidelity models before deciding whether to perform a poll step on
 the high-fidelity model \cite{Pattern Search Convergence MFO}.
 However, each poll step requires order $d$ high-fidelity model evaluations, which can
 be too expensive to afford in our problem settings.\\
@@ -1381,56 +1434,154 @@ fidelity models within the trust region. As mentioned in
 chapter \ref{intro}, it can be hard to obtain the gradient from the primal model.
 Therefore, it can be hard to certify fully-linearity and to support 
 the convergence proof.
-Secondly, as mentioned in section \ref{review surrogate methods}, constructing
-a functional surrogate for $\Delta J$ may require a large amount
-of low- and high- fidelity model evaluations when $d$ is large.
+Secondly, at every iteration, only the model evaluations within or adjacent
+to a trust region is actually used \cite{andrew thesis}. In our problem settings,
+each high-fidelity model evaluation can be so expensive that we should use \emph{all}
+high-fidelity evaluations available.
 Therefore, trust region MFO is not suitable for our problem settings too.\\
 
 \noindent In \emph{Bayesian optimization methods}, $J$ as a function of $c$
-is assumed to be an unknown sample from a \emph{stochastic process (SP)}. 
+is assumed to be an unknown realization of a \emph{Gaussian process}. 
 Bayesian optimization starts from a prior distribution of $J$, and
-updates its posterior as new samplings of $J(c)$ arrive.
+updates its posterior as new samples of $J(c)$ arrive. This procedure is also known as
+\emph{Kriging} \cite{Krigingold, kriging}.
 Then it constructs an \emph{acquisition function} $\rho: \mathcal{C}\mapsto \mathbb{R}\;
 ,\; c\rightarrow \rho(c)$ from the posterior, which measures
 the expected utility of investing the next sample at $c$.
 Finally, we choose the next sample as the maximizer of the acquisition function.
 Bayesian optimization iterates over the posterior-update step and the 
-acquisition-function-maximization step until convergence.
+$\rho$-maximization step until convergence \cite{Mockus Bayesian opt, practicalBayesianopt}.
+There are two advantages of Bayesian optimization:
+Firstly, Bayesian optimization uses all available model evaluations
+to construct the posterior. Secondly, it balances \emph{exploration}
+with \emph{exploitation} elegantly.
+Given a set of samples $J(c)$, should we choose the next sample 
+in a sparsely sampled region (exploration),
+or in a region adjacent to the current best sample (exploitation).
+Bayesian optimization makes a trade-off between exploration and exploitation 
+via appropriate acquisition functions. This method is provably convergent
+to the global optimal under mild requirement of the objective function 
+\cite{Bayopt converge 2, convergenceBayesian}.
+\\
 
-1. all information, optimal
-2. incompatible source of data
-3. 
+\noindent When a low-fidelity model exists, Bayesian optimization methods
+can be extended to \emph{Bayesian MFO}.
+Let the high-fidelity model's objective function
+be $J(c)$, and the low-fidelity model's objective function be $\tilde{J}(c)$.
+Bayesian MFO assumes both $J(c)$ and $\tilde{J}(c)$ are unknown realizations
+of (possibly different) Gaussian processes.
+Loosely speaking, by connecting the high- and low-fidelity models using 
+a Bayesian framework, we can better predict the high-fidelity model using
+low-fidelity model evaluations.
+Bayesian MFO assumes a \emph{Markov property}
+between $J(c)$ and $\tilde{J}(c)$ \cite{KennedyOhagan2}:
+\begin{equation}
+    p\left[ J(c_0)\Big| \tilde{J}(c_0), \tilde{J}(c_1),\cdots, \tilde{J}(c_N)\right]
+    = p\left[ J(c_0)\Big| \tilde{J}(c_0)\right]
+    \,,\quad
+    N\in \mathbb{Z}^+\,,
+    \label{ohagan_assumption}
+\end{equation}
+where $p(\cdot|\cdot)$ indicates the posterior. In other words,
+if we want to predict $J$ at $c_0$ using $\tilde{J}$, then it suffices to 
+evaluate $\tilde{J}$ only at $c_0$; we will gain no further information on $J(c_0)$ 
+by observing $J$ at $c\neq c_0$. This assumption is intuitive, and proves to be
+very useful and convenient \cite{KennedyOhagan1, KennedyOhagan2}. 
+By furthur assuming the Gaussian processes to be stationary, we can obtain
+\begin{equation}
+    \tilde{J}(c) = \rho J(c) + \epsilon(c)\,,
+\end{equation}
+where $\rho$ is a constant and $\epsilon(\cdot)$ is a realization of a Gaussian 
+process. Assume we have evaluated $J$ at $\mathbf{c}=\{c_1,\cdots, c_{N_1}\}$,
+and $\tilde{J}$ at $\mathbf{\tilde{c}} = \{\tilde{c}_1,\cdots, \tilde{c}_{N_2}\}$,
+then the posterior of $J(c)$ can be constructed from the joint distribution
+\begin{equation}
+    p\left(J(c), J(\mathbf{c}), \tilde{J}(\mathbf{\tilde{c}})\right) 
+    = \mathcal{N}\left(
+    \begin{pmatrix}
+        m\\ \mathbf{m} \\ \mathbf{\tilde{m}}
+    \end{pmatrix},\,
+    \begin{pmatrix}
+        \textrm{var}(J(c)) &
+        \textrm{cov}(J(c), J(\mathbf{c}) ) &
+        \textrm{cov}(J(c), \tilde{J}(\mathbf{\tilde{c}}))\\
+        \textrm{cov}(J(\mathbf{c}), J(c) ) & 
+        \textrm{var}(J(\mathbf{c})) & 
+        \textrm{cov}(J(\mathbf{c}), \tilde{J}(\mathbf{\tilde{c}}))\\
+        \textrm{cov}(\tilde{J}(\mathbf{\tilde{c}}), J(c)) & 
+        \textrm{cov}( J(\mathbf{c}), \tilde{J}(\mathbf{\tilde{c}}) ) & 
+        \textrm{var}(\tilde{J}(\mathbf{\tilde{c}}))
+    \end{pmatrix}
+    \right)\,
+    \label{joint distribution}
+\end{equation}
+where $m$ is the mean of $J$, $\tilde{m}$ is the mean of $\tilde{J}$, $\mathbf{m} =
+m \mathbf{1}_{N_1}$, and $\mathbf{\tilde{m}} =\tilde{m}\mathbf{1}_{N_2}$.
+The variance-covariances, known as \emph{kernels}, have to be selected \emph{a} prior.
+However, these kernels are flexible in that they have tunable parameters known as
+\emph{hyperparameters}, so realizations of the Gaussian processes
+can represent a wide class of functions \cite{RKHS aronszajn}. 
+The estimation of the hyperparameters and $\rho, m, \tilde{m}$ will be discussed below.
+The choice of kernels can be various, among the most popular ones are
+squared exponential kernel and Matern kernel \cite{practicalBayesianopt}.
+Because of the additional information of $\tilde{J}(\tilde{\mathbf{c}})$, 
+we can estimate
+$J(c)$ with less variance than using $J(\mathbf{c})$ alone.
+This procedure is also known as \emph{coKriging} \cite{cokriging}. 
+With the posterior obtained by the coKriging, Bayesian MFO maximizes the acquisition
+function to select the next design point $c$ to evaluate $J$.\\
 
-The SP can vary depending
-on its \emph{covariance} (also called \emph{kernel}).
-Among the most popular choices are Gaussian kernels \cite{KennedyOhagan1}
-and Matern kernels \cite{practicalBayesianopt}.
+\noindent How should we apply our twin model to a Bayesian MFO framework?
+Naturally we would think of a coKriging approach using Eqn\eqref{joint distribution}:
+We would first simulate the primal model as a high-fidelity model
+at an initial guess $c_0$. 
+This gives us the space-time solution $u_0$ and the objective function $J(c_0)$.
+We can train the twin model with $u_0$ using methods proposed in chapter 
+\ref{gradient_surrogate}. The trained twin model, as a low-fidelity model, 
+can be simulated to obtain $\tilde{J}$ at a set of new design points.
+Finally, the posterior of $J(c)$ can be constructed using the joint distribution
+Eqn\eqref{joint distribution}. We may repeat these steps while re-training 
+the twin model at updated design points.\\
 
+\noindent However, this approach is not suitable for our problem settings.
+The twin model may not be very cheap to evaluate. Contrary to the conventional
+ideology: ``low-fidelity model is cheap'', the twin model can 
+be expensive to simulate. Twin model is itself a PDE simulator.
+Unlike many commericial or open-source gray-box PDE simulators whose code is highly optimized
+for efficiency,
+the twin model code can be less efficient and more costly to solve. When
+the design space dimension $d$ is high, explorations of the design space
+using evaluations of $\tilde{J}$ suffers from the curse of dimensionality too.\\
 
-Bayesian calibration \cite{convergenceBayesian, KennedyOhagan1}
-Bayesian calibration with gradient \cite{gradient kriging surrogate}
-Kriging and cokriging \cite{kriging, cokriging}
-similar to Krigin whose acquisition is a special function, just the mean
-\cite{kriging functional surrogate}, also grad cokriging 
-\cite{adjoint gradient cokriging without MLE}
+\noindent To unleash the power of twin model, we propose using the twin model's gradient
+$\frac{d\tilde{J}}{d c}$ instead of $\tilde{J}(c)$ for coKriging.
+The twin model is an open-box and has the adjoint capability to compute $\frac{d\tilde{J}}{dc}$.
+It has been shown that using the adjoint-based gradient information can 
+reduce the number of function evaluations for Bayesian optimization
+\cite{adjoint gradient cokriging without MLE, gradient kriging surrogate},
+especially when $d$ is large. 
+In our problem settings, we do not have access to the adjoint-based gradient $\frac{dJ}{dc}$,
+but it is possible to approximate $\frac{dJ}{dc}$ by $\frac{d\tilde{J}}{dc}$.
+We can't make general arguments about the approximation accuracy. 
+Even if the twin model can reproduce the space-time solution of the primal model
+at a training design point, we can't ascertain that their adjoints 
+are close, for example when the twin model solves a chaotic system.
+However, the theoretical flaw should not prohibit us from investigating
+practical applications of twin model. Besides, later we will show that our optimization scheme 
+converges to the global optimal for the primal model,
+no matter how accurate or inaccurate the gradient approximation is.\\
 
- However, it is worth noting that the twin model
-may not be cheap to solve. Constructing a twin model requires an optimization itself 
-(Eqn\eqref{objective twin model} or Eqn\eqref{objective twin model steady}).
-Therefore, the MFO with twin model may not fit into the conventional ideology:
-`expensive high fidelity model, cheap low fidelity model'.
-If the twin model is expensive, why should we use it?
+\noindent Here is an example demonstrating why it can be promising to approximate
+$\frac{\partial J}{\partial u}$ with $\frac{\partial \tilde{J}}{\partial u}$.
+Consider the numerical example in section \ref{fixed numerical example},
 
-2. Training twin model costly (evaluate a PDE and ajdoint, iteratively nonlinear solve for training)
-   low fidelity is expensive too. 
+Example image.
+
 3. Gradient, proof
    \begin{figure}[H]
-       \includegraphics[width=4cm]{J_twin_vs_primal.png}
+       \includegraphics[width=5cm]{J_twin_vs_primal.png}
    \end{figure}
-3. Bayesian optimization \cite{Mockus Bayesian opt, practicalBayesianopt}
-   Desirable to spend computation to making better choices about where to seek the best next sample.
-   Also, good for fusion data of different types (cokriging).
-   acquisition function EI, UCB(no convergence proof)
+
 
 
 \subsection{Bayesian modeling of the primal and twin models}
@@ -1480,11 +1631,17 @@ Laplace rho = phi is impossible (Helmholtz equation)
 that is because knowledge of twin model basic structure is wrong.
 Report if twin model fails.
 
-
+\newpage
 \section{Application to a high-fidelity flow simulator}
 \label{examples}
-High-fidelity turbulence simulation and RANS twin model
-
+High-fidelity turbulence simulation and RANS twin model\\
+Fit for a twin model for the Reynold stress in RANS model.
+Consider twin model as a one-equation model.
+\begin{figure}[H]
+    \includegraphics[height=5cm]{ubend.png}
+    \includegraphics[height=5cm]{overall_mesh.png}
+    \includegraphics[height=5cm]{OpenFOAM_mesh.png}
+\end{figure}
 
 \begin{appendices}
     \section{Proof of theorem \ref{theorem: 1}: global-local error}
@@ -1609,18 +1766,18 @@ High-fidelity turbulence simulation and RANS twin model
     \end{equation}
     which completes the proof.$\hfill\Box$
 
-    \section{Proof of theorem \ref{theorem: 2}: gradient of twin model}
-    What to prove: If the twin model flux and rhs is close to the primal model,
-    then the gradients are close. Intermediate step, the adjoint state are close.
-    Consider objective function $\int_t\int_{\Omega} J(u,c)$.
-    The adjoint satisfies
-    \begin{equation}
-        \frac{\partial \lambda}{\partial t} + \nabla F(u)\cdot \nabla\lambda
-        = \frac{\partial J}{\partial u} - \frac{\partial q}{\partial u}\lambda
-    \end{equation}
-    with $\lambda(T) = 0$ and $\lambda\big|_{\partial \Omega} = 0$.\\
-    Need to show: if $\|F_1-F_2\|$ and $\|q_1-q_2\|$ are bounded, then
-    $\|\lambda_1-\lambda_2\|$ is bounded.
+%    \section{Proof of theorem \ref{theorem: 2}: gradient of twin model}
+%    What to prove: If the twin model flux and rhs is close to the primal model,
+%    then the gradients are close. Intermediate step, the adjoint state are close.
+%    Consider objective function $\int_t\int_{\Omega} J(u,c)$.
+%    The adjoint satisfies
+%    \begin{equation}
+%        \frac{\partial \lambda}{\partial t} + \nabla F(u)\cdot \nabla\lambda
+%        = \frac{\partial J}{\partial u} - \frac{\partial q}{\partial u}\lambda
+%    \end{equation}
+%    with $\lambda(T) = 0$ and $\lambda\big|_{\partial \Omega} = 0$.\\
+%    Need to show: if $\|F_1-F_2\|$ and $\|q_1-q_2\|$ are bounded, then
+%    $\|\lambda_1-\lambda_2\|$ is bounded.
     \section{Proof of theorem \ref{theorem: 3}: optimization convergence}
 \end{appendices}
 
@@ -1660,6 +1817,16 @@ Advances in Neural Information Processing Systems. 2012.
 Kennedy, Marc C., and Anthony O'Hagan. 
 "Predicting the output from a complex computer code when fast approximations are available." 
 Biometrika 87.1 (2000): 1-13.
+
+\bibitem{KennedyOhagan2}
+A. O'Hagan 
+"A Markov property for covariance structures." 
+Nottingham University Statistics Research Report 13 (1998).
+
+\bibitem{Krigingold}
+Oliver, Margaret A., and R. Webster. 
+"Kriging: a method of interpolation for geographical information systems." 
+International Journal of Geographical Information System 4.3 (1990): 313-332.
 
 \bibitem{inexactgradient1}
 Carter, Richard G. 
@@ -2066,6 +2233,11 @@ Structural optimization 17.1 (1999): 1-13.
 Andrew I. March
 "Multifidelity methods for multidisciplinary system design"
 Dissertation, Massachusetts Institute of Technology (2012)
+
+\bibitem{RKHS aronszajn}
+Aronszajn, Nachman. 
+"Theory of reproducing kernels." 
+Transactions of the American mathematical society (1950): 337-404.
 % ---- turbulence modeling and simulation ----
 
 \bibitem{LES}
