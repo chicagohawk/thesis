@@ -50,21 +50,19 @@ can be computed efficiently on twin model.\\
 
 \noindent Optimization can be performed in a multi-fidelity framework using twin model, in which
 the twin model is low-fidelity, and the gray-box simulation is high-fidelity.
-My thesis proposes a provably convergent optimization scheme that fuses
+My thesis proposes a provably convergent Bayesian optimization scheme that combines
 the evaluations of the gray-box objective function with the twin model gradient.
-The 
-Cokriging, 
+For completeness we also extend the framework to deal with optimization problems 
+with linear and nonlinear constraints.
+\\
 
+\noindent We demonstrate our method in a turbulence flow simulation in a turbine airfoil
+trailing edge cooling problem. The gray-box
+simulation is an performed by OpenFOAM, a gray-box simulation with no adjoint capability,
+using large eddy simulation (LES). The twin model is a Reynolds-averaged Navier-Stokes (RANS)
+equations model with flexible Reynold stress modelling. We optimize a U-bend
+geometry to minimize the pressure loss across U-bend, constrained by minimum heat transfer.
 
-
-
-
-leverage 
-In PDE constraint optimization problems
-many gray-box. Wehn the dimension is high, this problem is challenging curse
-of dimensionality. My contribution will be an approach to
-address this problem. Surrogate methods. Underlying surrogate physics based
-flexible physics.
 
 \newpage
 \tableofcontents
@@ -245,6 +243,34 @@ realizations of stochastic processes, hereby
 unify the samplings of $J(c)$ and the gradient surrogate inside a Bayesian framework. In section \ref{bayesian_opt} we will apply an Bayesian optimization method, 
 the expected improvement algorithm \cite{jones1998},
 to the unified Bayesian modelling, and discuss its convergence. In section \ref{complete_algo} we will summarize the algorithm. A numerical example of water-oil displacement process will be shown in chapter \ref{examples} to illustrate the advantage of the new strategy.\\
+
+\newpage
+\section{Problem statement / Thesis objective / Expected contribution / Timeline}
+\subsection{Problem statement}
+
+\noindent There are many turbulence models ranging from low to high in terms of complexity and fidelity. 
+Turbulence flow optimization generally considers objective functions of time averaged flow field. RANS model simulates a time averaged flow field directly, but the result can be inaccurate. Optimization based solely on high-fidelity simulations (e.g. LES, DNS) yields the most credible result. However, such optimization is computationally challenging. The challenge is two-folded: Firstly, these simulations generally require a tremendous amount of spatial-time discretization grid for sufficient resolution, and each objective function evaluation can be both lengthy in time and costly in computational resources. Secondly, these high-fidelity simulators generally do not have adjoint capability; so estimations of the gradient, a key to efficient optimization, is difficult to obtain especially for high dimensional design space.\\
+
+\noindent To alleviate this problem, multifidelity optimization have been applied to turbulence optimization for many years. Low fidelity models such as RANS are not only cheaper to evaluate, but also easier to implement the adjoint and evaluate the gradient. However, low-fidelity models may not be good representation of high-fidelity models, thus limiting computational savings.\\
+
+\subsection{Thesis objective}
+\begin{enumerate}
+    \item Develop a method for inferring a surrogate PDE for the Reynold stress from a 
+    high-fidelity simulation's space time solution.
+    \item Assess how much computational saving can be achieved by using the high-fidelity model's space time solution in  a return bend numerical testcase.
+\end{enumerate}
+
+\subsection{Expected contribution}
+\noindent Demonstrate that efficient gradient-based optimization is possible, even if the underlying PDE simulator does not implement an adjoint.\\
+
+
+\subsection{Timeline}
+\begin{itemize}
+    \item Apr: Proposal defense documentation and slides
+    \item May: Defend proposal. Demonstrate the proposed method on a toy example.
+    \item Jun: Setup an LES solver for the return bend testcase in OpenFoam, write a RANS solver with adjoint for the return bend.
+    \item Jul-Aug: Demonstrate the proposed method on the return bend example.
+\end{itemize}
 
 \newpage
 \section{Twin model}
@@ -1632,7 +1658,10 @@ that is because knowledge of twin model basic structure is wrong.
 Report if twin model fails.
 
 \newpage
-\section{Application to a high-fidelity flow simulator}
+\section{Future work}
+\subsection{Computation budget and resource allocation}
+Better accuracy of gradient? Or more high-fidelity simulations.
+\subsection{Application to a return bend }
 \label{examples}
 High-fidelity turbulence simulation and RANS twin model\\
 Fit for a twin model for the Reynold stress in RANS model.

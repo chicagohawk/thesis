@@ -3,24 +3,31 @@
 \contentsline {subsection}{\numberline {1.2}Problem setup}{6}
 \contentsline {subsection}{\numberline {1.3}Gradient-free and gradient-based optimization}{6}
 \contentsline {subsection}{\numberline {1.4}Proposal outline}{7}
-\contentsline {section}{\numberline {2}Twin model}{8}
-\contentsline {subsection}{\numberline {2.1}Review of surrogate methods}{8}
-\contentsline {subsection}{\numberline {2.2}Envision of twin model}{8}
-\contentsline {subsection}{\numberline {2.3}Review of system identification}{9}
-\contentsline {subsection}{\numberline {2.4}Formulation of twin model with fixed structure}{12}
-\contentsline {subsection}{\numberline {2.5}Adjoint-based parameter estimation of twin model}{13}
-\contentsline {subsection}{\numberline {2.6}Basis library for twin model}{13}
-\contentsline {subsection}{\numberline {2.7}Numerical example: twin model with fixed structure}{16}
-\contentsline {subsection}{\numberline {2.8}Twin model with adaptive structure}{19}
-\contentsline {subsection}{\numberline {2.9}Future work}{23}
-\contentsline {section}{\numberline {3}Optimization with twin model}{25}
-\contentsline {subsection}{\numberline {3.1}Motivation of the Bayesian approach}{25}
-\contentsline {subsection}{\numberline {3.2}Bayesian modeling of the primal and twin models}{28}
-\contentsline {subsection}{\numberline {3.3}Optimization using the posterior of the objective function}{28}
-\contentsline {subsection}{\numberline {3.4}Optimization constraints}{28}
-\contentsline {subsection}{\numberline {3.5}Complete algorithm}{28}
-\contentsline {subsection}{\numberline {3.6}Twin model validation}{28}
-\contentsline {section}{\numberline {4}Application to a high-fidelity flow simulator}{29}
-\contentsline {section}{Appendices}{29}
-\contentsline {section}{\numberline {A}Proof of theorem 1\hbox {}: global-local error}{29}
-\contentsline {section}{\numberline {B}Proof of theorem \G@refundefinedtrue \text {\normalfont \bfseries ??}\GenericWarning { }{LaTeX Warning: Reference `theorem: 3' on page 31 undefined}: optimization convergence}{31}
+\contentsline {section}{\numberline {2}Problem statement / Thesis objective / Expected contribution / Timeline}{8}
+\contentsline {subsection}{\numberline {2.1}Problem statement}{8}
+\contentsline {subsection}{\numberline {2.2}Thesis objective}{8}
+\contentsline {subsection}{\numberline {2.3}Expected contribution}{8}
+\contentsline {subsection}{\numberline {2.4}Timeline}{8}
+\contentsline {section}{\numberline {3}Twin model}{9}
+\contentsline {subsection}{\numberline {3.1}Review of surrogate methods}{9}
+\contentsline {subsection}{\numberline {3.2}Envision of twin model}{9}
+\contentsline {subsection}{\numberline {3.3}Review of system identification}{10}
+\contentsline {subsection}{\numberline {3.4}Formulation of twin model with fixed structure}{13}
+\contentsline {subsection}{\numberline {3.5}Adjoint-based parameter estimation of twin model}{14}
+\contentsline {subsection}{\numberline {3.6}Basis library for twin model}{14}
+\contentsline {subsection}{\numberline {3.7}Numerical example: twin model with fixed structure}{17}
+\contentsline {subsection}{\numberline {3.8}Twin model with adaptive structure}{20}
+\contentsline {subsection}{\numberline {3.9}Future work}{24}
+\contentsline {section}{\numberline {4}Optimization with twin model}{26}
+\contentsline {subsection}{\numberline {4.1}Motivation of the Bayesian approach}{26}
+\contentsline {subsection}{\numberline {4.2}Bayesian modeling of the primal and twin models}{29}
+\contentsline {subsection}{\numberline {4.3}Optimization using the posterior of the objective function}{29}
+\contentsline {subsection}{\numberline {4.4}Optimization constraints}{29}
+\contentsline {subsection}{\numberline {4.5}Complete algorithm}{29}
+\contentsline {subsection}{\numberline {4.6}Twin model validation}{29}
+\contentsline {section}{\numberline {5}Future work}{30}
+\contentsline {subsection}{\numberline {5.1}Computation budget and resource allocation}{30}
+\contentsline {subsection}{\numberline {5.2}Application to a return bend }{30}
+\contentsline {section}{Appendices}{30}
+\contentsline {section}{\numberline {A}Proof of theorem 1\hbox {}: global-local error}{30}
+\contentsline {section}{\numberline {B}Proof of theorem \G@refundefinedtrue \text {\normalfont \bfseries ??}\GenericWarning { }{LaTeX Warning: Reference `theorem: 3' on page 32 undefined}: optimization convergence}{32}
