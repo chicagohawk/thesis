@@ -68,6 +68,9 @@ geometry to minimize the pressure loss across U-bend, constrained by minimum hea
 \tableofcontents
 
 \newpage
+\section{Nomenclatures}
+
+\newpage
 \section{Background}
 \label{intro}
 
@@ -930,6 +933,7 @@ As discussed in section \ref{general formulation} and
 \begin{equation}
     \frac{\partial \tilde{u}}{\partial t} + \frac{\partial}{\partial x}\,
     \left(\sum_{k=1}^m \xi_k \bar{\phi}_{r,k}(\tilde{u})\right) = 0
+    \label{twin model 3}
 \end{equation}
 with the same initial and boundary conditions. We will
 use Eqn\eqref{phirk} for $\bar{\phi}$. Both the black-box simulation
@@ -1599,19 +1603,31 @@ no matter how accurate or inaccurate the gradient approximation is.\\
 
 \noindent Here is an example demonstrating why it can be promising to approximate
 $\frac{\partial J}{\partial u}$ with $\frac{\partial \tilde{J}}{\partial u}$.
-Consider the numerical example in section \ref{fixed numerical example},
-
-Example image.
-
-3. Gradient, proof
-   \begin{figure}[H]
-       \includegraphics[width=5cm]{J_twin_vs_primal.png}
-   \end{figure}
+Consider the numerical example in section \ref{fixed numerical example}, where the
+primal model solves:
+\begin{equation}
+    \frac{\partial \tilde{u}}{\partial t} + \frac{\partial}{\partial x}\,
+    \left(F(u)\right) = c\,,
+\end{equation}
+for $c=0$, with $F(u)$ given by Eqn\eqref{BL flux}. We trained a twin model
+Eqn\eqref{twin model 3} using the space time solution. We are interest in
+the approximation quality of the twin model's gradient at $c$ adjacent to $c=0$.
+The result is shown in 
+\begin{figure}[H]\begin{center}
+    \includegraphics[height=6cm]{J_twin_vs_primal.png}
+    \caption{Train the twin model at $c=0$, the resultant twin model gives good approximation for
+    the $\frac{dJ}{dc}$.}
+\end{center}\end{figure}
+\noindent The result is encouraging as the gradient computed by the twin model gives a good approximation
+of the gradient of the primal model. We reiterate that the good approximation quality benefits from 
+my proposed twin model method.
 
 
 
 \subsection{Bayesian modeling of the primal and twin models}
 \label{bayesian_model}
+We model the 
+
 Stochastic process model. The simulation output is modeled as a stochastic process
 DACE(Design and Analysis of Computer Experiments Kennedy Ohagan Jones 1998)
 $$
