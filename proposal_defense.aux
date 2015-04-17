@@ -78,9 +78,9 @@
 \citation{volterra 1}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces block structure model\relax }}{12}}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{Wiener}{{\caption@xref {Wiener}{ on input line 460}}{12}}
+\newlabel{Wiener}{{\caption@xref {Wiener}{ on input line 467}}{12}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces feedback model\relax }}{12}}
-\newlabel{Wiener}{{\caption@xref {Wiener}{ on input line 471}}{12}}
+\newlabel{Wiener}{{\caption@xref {Wiener}{ on input line 478}}{12}}
 \citation{billings 1981}
 \citation{NARMAXbook}
 \citation{Wavelet SI}
@@ -109,7 +109,7 @@
 \citation{Buckley Leverett}
 \newlabel{scaling projection}{{28}{16}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Meyer wavelet scaling function and its spectrum\relax }}{16}}
-\newlabel{fig:Meyer}{{\caption@xref {fig:Meyer}{ on input line 793}}{16}}
+\newlabel{fig:Meyer}{{\caption@xref {fig:Meyer}{ on input line 800}}{16}}
 \citation{wavelet mallat}
 \citation{Dijkema book}
 \newlabel{basis flux wavelet}{{31}{17}}
@@ -210,73 +210,93 @@
 \newlabel{joint distribution}{{59}{28}}
 \citation{adjoint gradient cokriging without MLE}
 \citation{gradient kriging surrogate}
-\citation{constraint Bayesian Opt}
-\citation{equality nonlinear constraint trust region opt}
-\citation{coarse discretization}
+\citation{practicalBayesianopt}
 \@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Train the twin model at $c=0$, the resultant twin model gives good approximation for the $\frac  {dJ}{dc}$.\relax }}{30}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Bayesian modeling of the primal and twin models}{30}}
 \newlabel{bayesian_model}{{5.2}{30}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Optimization using the posterior of the objective function}{30}}
-\newlabel{bayesian_opt}{{5.3}{30}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Optimization constraints}{30}}
-\newlabel{constraints}{{5.4}{30}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Complete algorithm}{30}}
-\newlabel{complete algo}{{5.5}{30}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Twin model validation}{30}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Future work}{31}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Computation budget and resource allocation}{31}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Application to a return bend }{31}}
-\newlabel{examples}{{6.2}{31}}
-\@writefile{toc}{\contentsline {section}{Appendices}{31}}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Proof of theorem 1\hbox {}: global-local error}{31}}
-\newlabel{appendix 1}{{A}{31}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Trajectories of the primal model and the twin model. $H$ and $G$ are their timestep-wise mapping functions.\relax }}{31}}
-\newlabel{fig:sketch}{{15}{31}}
+\newlabel{base Bayes model}{{61}{30}}
+\newlabel{funkernel}{{66}{30}}
+\citation{practicalBayesianopt}
+\citation{practicalBayesianopt}
+\newlabel{noise kernel}{{69}{31}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Optimization using the posterior of the objective function}{31}}
+\newlabel{bayesian_opt}{{5.3}{31}}
+\newlabel{EI form}{{73}{31}}
+\citation{MCMC hyperparameters}
+\citation{practicalBayesianopt}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces The flowchart of Bayesian optimization with twin model.\relax }}{33}}
+\newlabel{fig: Bopt flow}{{15}{33}}
+\citation{Torn and Zilinskas}
+\citation{convergenceBayesian}
+\citation{Bayopt converge 2}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Minimizing $J(x) = \DOTSB \sum@ \slimits@ _{i=1}^{\textrm  {dim}}x_i^2$ with variable $\textrm  {dim}$. The y-axis is the best / smallest $J$ after 10 function evaluations, in log 10 scale. The blue line is obtained from Bayesian optimization with no gradient information. The green line is obtained from Bayesian optimization with a noisy gradient, by setting $\sigma ^2 = \sigma ^2_\epsilon $, see Eqn\textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 66\hbox {}\unskip \@@italiccorr )}} and Eqn\textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 69\hbox {}\unskip \@@italiccorr )}}. The red line is obtained from Bayesian optimization with a less noisy gradient, by setting $0.1 \sigma ^2 = \sigma ^2_\epsilon $ We use Monte Carlo to randomly select some initial guesses for $x$. Each point on these lines represents the averaged $J_{10}$ using a random set of initial guesses.\relax }}{34}}
+\newlabel{fig: dim and J}{{16}{34}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Discussion of the convergence property}{34}}
+\citation{ubend rans opt 1}
+\citation{ubend rans opt 2}
+\newlabel{theorem: 2}{{3}{35}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Optimization constraints}{35}}
+\newlabel{constraints}{{5.5}{35}}
+\citation{nlopt}
+\citation{constraint Bayesian Opt}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Example of a constraint of the feasible geometry, The brighter region indicates feasible region of the return bend geometry. The wireframe indicates a feasible design.\relax }}{36}}
+\newlabel{fig: simple constraint}{{17}{36}}
+\newlabel{EI form constraint}{{76}{36}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces The flowchart of constraint Bayesian optimization with twin model.\relax }}{37}}
+\newlabel{fig: constraint bay opt}{{18}{37}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Application to a return bend }{37}}
+\newlabel{examples}{{5.6}{37}}
+\@writefile{toc}{\contentsline {section}{Appendices}{38}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Proof of theorem 1\hbox {}: global-local error}{38}}
+\newlabel{appendix 1}{{A}{38}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Trajectories of the primal model and the twin model. $H$ and $G$ are their timestep-wise mapping functions.\relax }}{38}}
+\newlabel{fig:sketch}{{19}{38}}
+\newlabel{global error}{{79}{38}}
+\newlabel{local error}{{80}{38}}
+\newlabel{expansion global error}{{82}{38}}
 \bibcite{hanmaster}{1}
-\newlabel{global error}{{63}{32}}
-\newlabel{local error}{{64}{32}}
-\newlabel{expansion global error}{{66}{32}}
-\newlabel{error diff}{{67}{32}}
-\newlabel{error diff}{{70}{32}}
-\newlabel{error diff 2}{{71}{32}}
 \bibcite{andrewras}{2}
 \bibcite{jones1998}{3}
 \bibcite{convergenceBayesian}{4}
 \bibcite{NARMAXbook}{5}
 \bibcite{practicalBayesianopt}{6}
+\newlabel{error diff}{{83}{39}}
+\newlabel{error diff}{{86}{39}}
+\newlabel{error diff 2}{{87}{39}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Proof of theorem 3\hbox {}: optimization convergence}{39}}
+\newlabel{proof convergence append}{{B}{39}}
 \bibcite{KennedyOhagan1}{7}
 \bibcite{KennedyOhagan2}{8}
-\bibcite{Krigingold}{9}
-\bibcite{inexactgradient1}{10}
-\bibcite{inexactnewton1}{11}
-\bibcite{trustregionconn}{12}
-\bibcite{trustregionwild}{13}
-\bibcite{kriging}{14}
-\bibcite{cokriging}{15}
-\bibcite{bishopbook}{16}
-\bibcite{SarmaEKF}{17}
-\bibcite{gradfreereview}{18}
-\bibcite{dynamicprogramming}{19}
-\bibcite{quasiNewton}{20}
-\bibcite{adjoint}{21}
-\bibcite{cont discretize adjoint}{22}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Proof of theorem \G@refundefinedtrue \text  {\normalfont  \bfseries  ??}\GenericWarning  {               }{LaTeX Warning: Reference `theorem: 3' on page 33 undefined}: optimization convergence}{33}}
-\bibcite{automaticdiff}{23}
-\bibcite{reservoir simulation book}{24}
-\bibcite{wavelet mallat}{25}
-\bibcite{Bayopt converge 2}{26}
-\bibcite{Buckley Leverett}{27}
-\bibcite{Reservoir Simulation Book}{28}
-\bibcite{Boyd optimization}{29}
-\bibcite{Sigmoid Approximation}{30}
-\bibcite{haar}{31}
-\bibcite{Analytic Meyer}{32}
-\bibcite{Opt Koziel Book}{33}
-\bibcite{Surrogate based analysis and optimization}{34}
-\bibcite{Space mapping 1}{35}
-\bibcite{Space mapping 2}{36}
-\bibcite{simplified physics}{37}
-\bibcite{equality nonlinear constraint trust region opt}{38}
+\bibcite{MCMC hyperparameters}{9}
+\bibcite{Krigingold}{10}
+\bibcite{inexactgradient1}{11}
+\bibcite{inexactnewton1}{12}
+\bibcite{trustregionconn}{13}
+\bibcite{trustregionwild}{14}
+\bibcite{kriging}{15}
+\bibcite{cokriging}{16}
+\bibcite{bishopbook}{17}
+\bibcite{SarmaEKF}{18}
+\bibcite{gradfreereview}{19}
+\bibcite{dynamicprogramming}{20}
+\bibcite{quasiNewton}{21}
+\bibcite{adjoint}{22}
+\bibcite{cont discretize adjoint}{23}
+\bibcite{automaticdiff}{24}
+\bibcite{reservoir simulation book}{25}
+\bibcite{wavelet mallat}{26}
+\bibcite{Bayopt converge 2}{27}
+\bibcite{Buckley Leverett}{28}
+\bibcite{Reservoir Simulation Book}{29}
+\bibcite{Boyd optimization}{30}
+\bibcite{Sigmoid Approximation}{31}
+\bibcite{haar}{32}
+\bibcite{Analytic Meyer}{33}
+\bibcite{Opt Koziel Book}{34}
+\bibcite{Surrogate based analysis and optimization}{35}
+\bibcite{Space mapping 1}{36}
+\bibcite{Space mapping 2}{37}
+\bibcite{simplified physics}{38}
 \bibcite{coarse discretization}{39}
 \bibcite{gradient kriging surrogate}{40}
 \bibcite{poly functional surrogate}{41}
@@ -335,3 +355,6 @@
 \bibcite{LES oldest}{94}
 \bibcite{DNS}{95}
 \bibcite{constraint lift}{96}
+\bibcite{ubend rans opt 1}{97}
+\bibcite{ubend rans opt 2}{98}
+\bibcite{Torn and Zilinskas}{99}

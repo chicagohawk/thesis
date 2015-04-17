@@ -258,21 +258,28 @@ Turbulence flow optimization generally considers objective functions of time ave
 
 \subsection{Thesis objective}
 \begin{enumerate}
-    \item Develop a method for inferring a surrogate PDE for the Reynold stress from a 
-    high-fidelity simulation's space time solution.
+    \item Develop a method for inferring a surrogate PDE from the space time solution of an unknown PDE simulation.
     \item Assess how much computational saving can be achieved by using the high-fidelity model's space time solution in  a return bend numerical testcase.
 \end{enumerate}
 
 \subsection{Expected contribution}
-\noindent Demonstrate that efficient gradient-based optimization is possible, even if the underlying PDE simulator does not implement an adjoint.\\
+\begin{enumerate}
+    \item Enable adjoint gradient computation even if the governing PDE is not available.
+    \item Demonstrate that efficient gradient-based optimization is possible, even if the underlying simulator does not implement
+          an adjoint.
+    \item Demonstrate my method's superiority in a high-fidelity turbulent flow optimization with a
+    high-dimensional design space.
+\end{enumerate}
 
 
 \subsection{Timeline}
 \begin{itemize}
     \item Apr: Proposal defense documentation and slides
-    \item May: Defend proposal. Demonstrate the proposed method on a toy example.
+    \item May: Defend proposal. Demonstrate the complete algorithm on a the 1D Buckley-Leverett example.
     \item Jun: Setup an LES solver for the return bend testcase in OpenFoam, write a RANS solver with adjoint for the return bend.
-    \item Jul-Aug: Demonstrate the proposed method on the return bend example.
+    \item Jul-Oct: Implement the proposed method on the return bend example.
+    \item Aug-Nov: Thesis writing
+    \item Jan: Defense
 \end{itemize}
 
 \newpage
@@ -1326,7 +1333,7 @@ The result is shown in Fig \ref{fig:basis_selection_1} and Fig \ref{fig:basis_se
 
 \subsection{Future work}
 The sections above provide a framework to infer the twin model for time-dependent primal models 
-with unknown flux functions. However, there are three issues to investigate.\\
+with unknown flux functions. However, there are four issues to investigate.\\
 
 \noindent Firstly, we need to extend the theory to more general problems.
 We should investigate twin models with unknown source term, and
@@ -1362,6 +1369,12 @@ Therefore, the twin model method may be improved by choosing
 a set of basis from an \emph{non-fixed} basis library.
 A literature survey is required 
 to determine the most appropriate method to use.
+
+\noindent Fourthly, we need to extend the basis selection scheme to time-independent PDEs.
+Right now, the basis selection scheme in section \ref{adaptive} is only for time-dependent PDEs.
+Using a global-local error approach and a finite difference approximation, the basis
+selection problem was reduced to a linear basis selection problem. If we want to infer
+a time-independent PDE, this approach is not applicable. 
 
 \newpage
 \section{Optimization with twin model}
@@ -1620,65 +1633,395 @@ The result is shown in
 \end{center}\end{figure}
 \noindent The result is encouraging as the gradient computed by the twin model gives a good approximation
 of the gradient of the primal model. We reiterate that the good approximation quality benefits from 
-my proposed twin model method.
+the matching of space-time solution.
 
 
 
 \subsection{Bayesian modeling of the primal and twin models}
 \label{bayesian_model}
-We model the 
+\noindent We model the relation of $\nabla J(c)$ and $\nabla \tilde{J}(c)$ as
+\begin{equation}
+    \nabla \tilde{J}(c) = \nabla J(c) + \epsilon(c)\,,
+    \label{base Bayes model}
+\end{equation}
+Assume $\nabla J(c)$, $\nabla \tilde{J}(c)$, and $\epsilon(c)$ 
+are realizations of stationary Gaussian processes. We first model the priors
+of $\nabla J(c)$, $\nabla \tilde{J}(c)$, and $\epsilon(c)$, when no evalutions
+of the high- and low-fidelity models are made.\\
 
-Stochastic process model. The simulation output is modeled as a stochastic process
-DACE(Design and Analysis of Computer Experiments Kennedy Ohagan Jones 1998)
-$$
-y(x^{(i)}) = \mu + \epsilon(x^{(i)})
-$$
-where $\mu$ is the mean of the stochastic process. $\epsilon(x^{(i)})$ is ...
-Concentrated likelihood function
-
+\noindent For any $c_1$ and $c_2$, assume
+$\epsilon(x)$ is an unknown realization of Gaussian process
+$\mathcal{N}(\textbf{0}, K_{\epsilon}(\cdot,\cdot))$. 
+$K_\epsilon: \mathbb{R}^n \times\mathbb{R}^n\mapsto \mathbb{R}$
+\begin{equation}
+    \quad K_{\epsilon}(c_1, c_2) =\boldsymbol{I}_{n\times n} 
+    k_\epsilon(c_1, c_2; \theta_\epsilon)\,,
+\end{equation}
+where $\theta_\epsilon$ are the hyperparameters of the kernel.\\
+$J(c)$ is treated as a realization of the Gaussian process 
+$\mathcal{N}(\mu, K(\cdot,\cdot))$, 
+$K: \mathbb{R}^n \times\mathbb{R}^n\mapsto \mathbb{R}$
+where
+\begin{equation}
+    K(c_1, c_2) = k(c_1, c_2; \theta)\,.
+\end{equation}
+$\theta$ are the hyperparameters of the kernel.
+Assume
+\begin{equation}\begin{split}
+    cov(\nabla J(c_1), \epsilon(c_2)) &= 0\\
+    cov(J(c_1), \epsilon(c_2)) &= 0\,,
+\end{split}\end{equation}
+for any $c_1$, $c_2$.
+Then
+\begin{equation}
+    \quad cov(J(c_1), \nabla \tilde{J}(c_2)) = cov(J(c_1), \nabla J(c_2))
+\end{equation}
+for any $c_1$, $c_2$.
+There are multiple popular choices for the kernels.
+Generally the squared exponential kernel is a default choice. However,
+sample functions from this kernel are unrealistically smooth and may not
+represent the objective function well. Another popular choice is the Matern kernel, especially 
+$5/2$ kernel:
+\begin{equation}
+    K_0(c_1, c_2; \theta) \equiv \sigma^2 \left(1+\frac{\sqrt{5}d}{\rho}
+    + \frac{5d^2}{3\rho^2}\right) \exp\left(-\frac{\sqrt{5}d}{\rho}\right)\,,
+    \label{funkernel}
+\end{equation}
+where $d = \|c_1-c_2\|_{L_2}$. $\theta$ are the hyperparameters $\rho$ and $\sigma$.
+The corresponding sample functions are twice differentiable, but not as
+smooth as the square exponential kernel. It has been shown the Matern $5/2$ kernel 
+outperforms other kernels in several Bayesian optimization problems \cite{practicalBayesianopt}.
+Thus we choose the Matern $5/2$ kernel as our choice.
+It is worth noting that the kernel function was chosen to be isotropic. 
+In our problem, all the design parameters are the boundary points that controls 
+the return bend geometry, so it makes sense to use a isotropic kernel for simplicity.
+In general, the metric $d$ does not need to be isotropic, but this comes at the price
+of having more hyperparameters.
+\noindent Based on the assumptions above, we have
+\begin{equation}
+    K_1(c_1, c_2; \theta) \equiv
+    \frac{\partial}{\partial c_2} cov(J(c_1), J(c_2)) =
+    \sigma^2 \exp\left\{-\frac{\sqrt{5}d}{\rho}\right\}
+    \left(\frac{5}{3\rho^2}
+    + \frac{5\sqrt{5}d}{3\rho^3}\right) (c_1-c_2)
+\end{equation}
+and
+\begin{equation}
+    K_2(c_1, c_2; \theta) \equiv
+    \frac{\partial^2}{\partial c_1\partial c_2} cov(J(c_1),J(c_2))
+    = \sigma^2 \exp\left\{-\frac{\sqrt{5}d}{\rho}\right\}
+    \left\{
+        \left(\frac{5}{3\rho^2} + \frac{5\sqrt{5}d}{3\rho^3}\right)\boldsymbol{I}
+        - \frac{25}{3\rho^4} (c_1-c_2) (c_1-c_2)^T
+    \right\}
+\end{equation}
+We will model $J(c)$ as sampled function with the kernel Eqn\eqref{funkernel} with
+hyperparameters $\theta = (\rho, \sigma)$.
+We will model $\epsilon(c)$ as sampled function with the kernel
+\begin{equation}
+    \boldsymbol{I}_{n\times n} K_0(c_1, c_2; \theta_\epsilon)
+    \label{noise kernel}
+\end{equation}
+with hyperparameters $\theta_\epsilon = (\rho_\epsilon, \sigma_\epsilon)$.
+Suppose we sample $J$ on $\mathbf{c}$, and sample $\nabla \tilde{J}$ on
+$\mathbf{\tilde{c}}$, then the joint probability of $J(c)$ at an unsampled $c$ 
+and the sampled data can be constructed.
+Specifically, the joint probability is a Guassian process with mean
+\begin{equation}
+    \left(\mu , \boldsymbol{\mu} , \mathbf{0}\right)^T
+\end{equation}
+and covariance
+\begin{equation}
+    \begin{pmatrix}
+        K_0 (c, c; \theta) & K_0(c, \mathbf{c};\theta) & K_1(c, \tilde{\mathbf{c}}; \theta)\\
+        K_0 (c, \mathbf{c}; \theta)^T & K_0(\mathbf{c}, \mathbf{c};\theta) 
+        & K_1(\mathbf{c}, \tilde{\mathbf{c}}; \theta)\\
+        K_1(c, \tilde{\mathbf{c}}; \theta)^T & K_1(\mathbf{c},\tilde{\mathbf{c}}; \theta)^T &
+        K_2(\tilde{\mathbf{c}}, \tilde{\mathbf{c}}; \theta) + 
+        K_\epsilon (\tilde{\mathbf{c}}, \tilde{\mathbf{c}}; \theta_\epsilon)
+    \end{pmatrix}
+\end{equation}
+In practice, because the high-fidelity model
+is never simulated for infinite time to compute the time average,
+the sampling of $J$ can be noisy. We assume the noise in sampling $J$
+due to finite high-fidelity simulation to be a white noise with variance $\delta^2_T$,
+where $T$ is the physical time running the high-fidelity simulation.
+Therefore, the covariance of the joint probability may be modified to
+\begin{equation}
+    \begin{pmatrix}
+        K_0 (c, c; \theta)+\delta^2_T & K_0(c, \mathbf{c};\theta) & K_1(c, \tilde{\mathbf{c}}; \theta)\\
+        K_0 (c, \mathbf{c}; \theta)^T & K_0(\mathbf{c}, \mathbf{c};\theta) + \delta^2_T \boldsymbol{I}
+        & K_1(\mathbf{c}, \tilde{\mathbf{c}}; \theta)\\
+        K_1(c, \tilde{\mathbf{c}}; \theta)^T & K_1(\mathbf{c},\tilde{\mathbf{c}}; \theta)^T &
+        K_2(\tilde{\mathbf{c}}, \tilde{\mathbf{c}}; \theta) + 
+        K_\epsilon (\tilde{\mathbf{c}}, \tilde{\mathbf{c}}; \theta_\epsilon)
+    \end{pmatrix}
+\end{equation}
+The relationship of $\delta_T$ with $T$ can be determined empirically.
 
 
 \subsection{Optimization using the posterior of the objective function}
 \label{bayesian_opt}
-why not mu+k*sigma, counter example of no convergence.
-Sampling next design point as a design of experiment problem.
-Why use Bayesian optimization (compare to gradient-descent, and gradient-free). Proven convergence
-(I'm not able to prove with gradient)
-Stochastic process modeling of model.
-Expected improvement
-Use gradient information: cascading posterior
-Error estimate (covariance) of estimated gradient
-Example:
-Qudratic high-dimensional analysis (Convergence rate change with dimension)
+\noindent Using the assumptions in section \ref{bayesian_model}, we can derive the posterior
+of $J(c)$ given samples of $J$ and $\nabla \tilde{J}$. 
+Then Bayesian optimization can be performed with the posterior.
+However, there are at least three questions to answer before applying Bayesian optimization.
+The first question is the choice of the acquisition function.
+The second question is how to optimize the acquisition function.
+The third question is how to determine the hyperparameters $\theta = (\sigma, \rho)$ 
+and $\theta_\epsilon = (\sigma_\epsilon, \rho_\epsilon)$.
+\\
+
+\noindent For the first question, generally people use two popular acquisition functions
+\cite{practicalBayesianopt}.
+The first one is the \emph{expected improvement} acquisition function.
+Let $c^*_s$ be the best design after $s$ previous samples $c_1, \cdots, c_s$, then the next sample 
+$c_{s+1}$ will be drawn with
+\begin{equation}
+    c_{s+1} = \arg\max_{c\in\mathcal{C}} \mathbb{E}
+    \left[\left. \max\left(J(c) - J(c^*_s), 0\right) \right| \mathcal{S}\right]\,,
+    \label{EI form}
+\end{equation}
+where $S$ indicates all available samplings on $J$ and $\nabla \tilde{J}$.
+This formulation chooses the next sample point to maximize the expectation of
+the improvement: $\max \left(J(c) - J(c^*_s) , 0\right)$ conditioned on existing
+samples, hereby its name.
+Another popular method is the \emph{upper confidence bound} acquisition function.
+The next sample is drawn with
+\begin{equation}
+    c_{s+1} = \arg\max_{c\in\mathcal{C}} \left[ \mu(J(c)\big|\mathcal{S}) +\kappa \sigma(J(c)\big|\mathcal{S}) \right]\,,
+\end{equation}
+with a tunable $\kappa$ to balance exploration against exploitation. We will
+use the expected improvement formulation because it does not have the user tunable
+parameter $\kappa$. The formulation Eqn\eqref{EI form} has a close form under the Gaussian process
+assumption \cite{practicalBayesianopt}, which makes its evaluation straightforward. 
+\\
+
+\noindent For the second question, we consider using a gradient-driven optimizer
+with multiple initial guesses, for the following reasons. Firstly, the gradient of the 
+acquisition function with respect to the candidate design point, $\frac{d\rho}{dc}$,
+can be obtained easily using automatic differentiation. Secondly, we want to
+reduce the risk of the optimization converging to a non-global-optimal candidate design,
+so it can be reasonable to optimize with multiple initial guesses.
+The specific optimizer is yet to be chosen, though we expect little impact 
+on optimization performance
+due to different choices.
+\\
+
+\noindent For the third question, there are two popular approaches to treat
+the hyperparameters. One approach is to use the maximum likelihood estimate of the
+hyperparameters, in which a point estimate of the hyperparameters are made by maximizing 
+the likelihood function. Another approach is a Bayesian treatment of the hyperparameters.
+Instead of optimizing the acquisition function with a point estimate of the hyperparameters,
+it optimize an acquisition function marginalized over the hyperparameters, a.k.a 
+integrated acquisition function. The marginalization is often implemented with an Monte
+Carlo approach \cite{MCMC hyperparameters}. Generally these two approach have comparible 
+performance \cite{practicalBayesianopt}. 
+Without further specification our study is conducted using the maximum likelihood
+estimate approach.
+\\
+
+\noindent To sum up, the proposed optimization flowchart is shown in Fig\ref{fig: Bopt flow}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[height=12cm]{Bopt_flowchart.png}
+        \caption{The flowchart of Bayesian optimization with twin model.}
+        \label{fig: Bopt flow}
+    \end{center}
+\end{figure}
+
+\noindent Intuitively, as the design space dimension increases, the ability to estimate 
+$\frac{dJ}{dc}$ may become more important for faster $J$ reduction. 
+For illustration, we consider minimizing
+\begin{equation}
+    J(x) = \sum_{i=1}^{\textrm{dim}} x_i^2\,.
+\end{equation}
+The true optimal is $x=\mathbf{0}$. Suppose the evaluation of $J$ is so expensive
+that we can only evaluate it for 10 times. When $\textrm{dim}$ increases, we may expect
+the smallest $J$ in the 10 evaluations to increase. When an estimation of $\frac{dJ}{dc}$
+is available, the objective function may be reduced more quickly during the 10 evaluations,
+even if the gradient estimation is noisy. We demonstrate  the superiority of using 
+estimated gradient in Fig\ref{fig: dim and J}.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[height=7cm]{highdimoptdemon.png}
+        \caption{Minimizing $J(x) = \sum_{i=1}^{\textrm{dim}}x_i^2$ with variable $\textrm{dim}$.
+                 The y-axis is the best / smallest $J$ after 10 function evaluations, in log 10 scale.
+                 The blue line is obtained from Bayesian optimization with no gradient information.
+                 The green line is obtained from Bayesian optimization with a noisy gradient, by
+                 setting $\sigma^2 = \sigma^2_\epsilon$, see Eqn\eqref{funkernel} 
+                 and Eqn\eqref{noise kernel}. The red line is obtained from Bayesian optimization
+                 with a less noisy gradient, by setting $0.1 \sigma^2 = \sigma^2_\epsilon$
+                 We use Monte Carlo to randomly select some initial guesses for $x$. Each point
+                 on these lines represents the averaged $J_{10}$ using a random set of 
+                 initial guesses.}
+        \label{fig: dim and J}
+    \end{center}
+\end{figure}
+
+\subsection{Discussion of the convergence property}
+\noindent Bayesian optimization is a deterministic global optimization strategy.
+Given previous evaluations, it locates deterministically the next design point for evaluation. In the
+end, the optimization generates an infinite sequence of design points.
+Clearly, given an optimization strategy, 
+the sequence depends on the underlying function to evaluate, and depends on the initial design.
+The convergence property of Bayesian optimization can be discussed by the property of the design
+sequence, using the following theorem \cite{Torn and Zilinskas}:\\
+\fbox{\parbox{\textwidth}{
+\begin{theorem}
+    Let $W^{k,p}(\mathcal{X})$ be a Sobolev space of functions defined on $\mathcal{X}$.
+    For any initial design in $\mathcal{X}$, 
+    a global optimization algorithm converges for all functions in $W^{k,p}(\mathcal{X})$
+    if and only if the design sequence produced by the algorithm is dense in $\mathcal{X}$
+    for all functions in $W^{k,p}(\mathcal{X})$.
+\end{theorem}
+}}\\
+
+\noindent Therefore, 
+we will investigate whether the sequence produced by the proposed optimization scheme is dense.
+If we can sample the exact function value, 
+and if we use the expected improvement acquisition
+function, it has been shown \cite{convergenceBayesian, Bayopt converge 2} the sequence is indeed dense,
+under some mild conditions on the objective function.
+In this section, we extend the theoretical result to sample both the exact function value and the
+noisy function gradient.\\
+\fbox{\parbox{\textwidth}{
+\begin{theorem}
+    Assume
+    \begin{enumerate}
+        \item $\mathcal{X} \in \mathbb{R}^n$, $\|\cdot\|$ be the $L_2$ norm defined on $\mathcal{X}$.
+        \item $\mathcal{H}$ and $\mathcal{H}^\prime$ be two reproducing kernel Hilbert spaces 
+              on $\mathcal{X}$, with kernels $K(\cdot, \cdot): \mathcal{X}\times \mathcal{X}\mapsto
+               \mathbb{R}$ and $K^\prime(\cdot, \cdot): \mathcal{X}\times \mathcal{X}\mapsto
+               \mathbb{R}^n$ respectively.
+        \item There exist $k: \mathbb{R}^+ \bigcup \{0\}\mapsto \mathbb{R}$ and 
+              $k^\prime: \mathbb{R}^+ \bigcup\{0\}\mapsto \mathbb{R}^n$, such that
+              $K$ and $K^\prime$ satisfies $K(x,y) = k(\|x-y\|)$ and
+              $K^\prime(x,y) = k^\prime(\|x-y\|)$ respectively, for $\forall x, y
+               \in \mathcal{X}$.
+        \item $k$ and $k^\prime$ has the Fourier transforms $\hat{k}$
+              and $\hat{k}^\prime$ respectively. Let $\hat{k}^\prime
+              = \left(\hat{k}^\prime_1, \cdots, \hat{k}^\prime_n\right)^T$.
+              They satisfy the asymptotic properties
+              $\hat{k}(u) = {\Theta}(|u|^{-n-2\nu})$ and 
+              $\hat{k}_i^\prime(u) = {\Theta}(|u|^{-n-2\nu^\prime}),\; i=1,\cdots, n$ 
+              as $|u|\rightarrow \infty$, with $\frac{1}{2}<\nu<\infty$ and $\nu^\prime = \nu-1$.
+              ( $\Theta$ is the asymptotic big $\Theta$ notation. )
+    \end{enumerate}
+    Let 
+    \begin{enumerate}
+        \item $f\in \mathcal{H}$ be the underlying objective function to maximize. 
+        \item $g\in\mathcal{H}^\prime$ be the noisy gradient of $f$. 
+        \item $\epsilon$ be the gradient sample noise
+              $$
+                  \epsilon = g - \nabla f\,.
+              $$
+    \end{enumerate}
+    Let the optimization strategy generates the design sequence according to 
+    \begin{equation*}\begin{split}
+        x_{s+1} &= \arg\max_{x\in\mathcal{X}} \mathbb{E} \left[
+        \max\left( f(x) -  f(x_s^*) \right) \Big| \mathcal{S}
+        \right]\\
+        x_s^* &= \arg\max_{x\in\{x_1,\cdots,x_s\}}f(x)\\
+        \mathcal{S} &= \Big\{ \left\{x_1,\cdots, x_s\right\} ,
+        \left\{f(x_1),\cdots, f(x_s)\right\},
+        \left\{g(x_1),\cdots, g(x_s)\right\}\Big\}
+    \end{split}\end{equation*}
+    Then the sequence $\left\{ x_1, x_2, \cdots \right\}$ 
+    is dense in $\mathcal{X}$ for $\forall x_1\in \mathcal{X}$.
+    \label{theorem: 2}
+\end{theorem}
+}}\\
+
+\noindent As a future work, we will prove the theorem in appendix \ref{proof convergence append}.
+
+
 \subsection{Optimization constraints}
 \label{constraints}
-Geometric inequalities, easy
-costly to evaluate inqualities, feasible region, hard
-constraint c(x) evaluated by primal, and dcdx at twin, indicator
-\cite{constraint Bayesian Opt}
-Another method is Lagrangian, convert to unconstraint (different from Lagrange multipliers). 
-(see wiki)
-penalty method, augmented Lagrange method
-Equality nonlinear constraints 
-\cite{equality nonlinear constraint trust region opt}
-Extend to inequality nonlinear constraint \cite{coarse discretization}
+\noindent In the previous sections, we considered only non-constraint optimization for simplicity.
+In order to deal with the more general formulation Eqn\eqref{general opt}, we
+need to consider inequality constraint optimization. Inequality constraint optimization 
+is of great interest in the engineering community. For example, in the design of
+internal cooling ducts in turbomachineries, one possible objective is to minimize 
+the pressure loss in a 180-degree return bend. However, reducing pressure loss may 
+also reduce heat transfer, thus reduce the cooling ability
+\cite{ubend rans opt 1, ubend rans opt 2}. Therefore, a viable approach is to set
+a minimum heat transfer constraint while minimizing pressure loss. Another possible constraint
+in the internal cooling duct problem is the geometric bound on the duct's wall.
+This is because the duct must be contained 
+inside the airfoil, and must be geometrically compatible with other components.
+We illustrate such a constraint in Fig \ref{fig: simple constraint}.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[height=6cm]{geometric_constraint.png}
+        \caption{Example of a constraint of the feasible geometry, The brighter region indicates
+                 feasible region of the return bend geometry. The wireframe indicates
+                 a feasible design.}
+        \label{fig: simple constraint}
+    \end{center}
+\end{figure}
 
-\subsection{Complete algorithm}
-\label{complete algo}
+\noindent Constraints can be categorized into two types based on how they are evaluated: 
+the first type are constraints that require a PDE simulations's space-time solution;
+the second type are constraints that do \emph{not} require the space-time solution.
+In the example above, the constraint on the heat transfer belongs to the first type,
+while the constraint on the duct geometry belongs to the second type.
+Generally, evaluation of the first type constraint is much more expensive than
+the second type constraint, and can be similarly expensive as the evaluation of the 
+objective function.
+Let the feasible region specified by the first type constraints be $\mathcal{C}_1$,
+and let the feasible region specified by the second type constraints be $\mathcal{C}_2$.
+The feasible region in Eqn\eqref{general opt} is $\mathcal{C} = \mathcal{C}_1 \bigcap
+\mathcal{C}_2$.
+\\
 
-\subsection{Twin model validation}
-If primal model uses not accurate solver, if dependence is not local so no PDE can be written,
-like integral equation
-Laplace rho = phi is impossible (Helmholtz equation)
-that is because knowledge of twin model basic structure is wrong.
-Report if twin model fails.
+\noindent The second type constraints are not the topic of my research, because
+generally they can be
+evaluated cheaply. Optimization modules such as NLopt\cite{nlopt} have already
+implemented many established methods for such constraints.
+In Bayesian optimization, this type of constraints can be implemented in 
+the optimization of the acquisition function, so the next evaluation point is always inside
+$\mathcal{C}_2$.
+The first type constraints, however, require special attention.
+If we choose the expected improvement formulation in our Bayesian optimization,
+Eqn\eqref{EI form} should be modified to:
+\begin{equation}
+    c_{s+1} = \arg\max_{c\in\mathcal{C}_2} \Big\{ \mathbb{E} 
+    \left[\left. \max\left(J(c) - J(c^*_s), 0\right) \right.\Big| \mathcal{S}\right]\cdot
+    \mathbb{P}\big[V(c)\le 0 \big| \mathcal{S}\big] \Big\}\,,
+    \label{EI form constraint}
+\end{equation}
+The modified formulation is called \emph{constraint expected improvement}
+\cite{constraint Bayesian Opt}.
+Here $c_s^*$ is the best \emph{feasible} design in the previous $s$ iterations.
+Notice the optimization domain is $c\in\mathcal{C}_2$.
+Intuitively, improvement on $J$ is not counted valid unless the design is feasible.
+\\
 
-\newpage
-\section{Future work}
-\subsection{Computation budget and resource allocation}
-Better accuracy of gradient? Or more high-fidelity simulations.
+\noindent Similar to $J(c)$, we can construct a posterior distribution on $V(c)$ and
+evaluate $\mathbb{P}\big[V(c)\le 0 \big| \mathcal{S}\big] $ in Eqn\eqref{EI form constraint}.
+Straightforward evaluations of $V(c)$
+using the primal model can be costly.
+However, similar to $J(c)$, we can use the twin model to estimate the gradient of $V(c)$
+cheaply. Specifically, we construct the posterior of $V(c)$
+using evaluations of $V(c)$ and $\frac{d\tilde{V}(c)}{dc}$, and use
+Eqn\eqref{EI form constraint} as our acquisition function to perform optimization.
+The framework is shown in Fig \ref{fig: constraint bay opt}.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[height=12cm]{Bayconstraint.png}
+        \caption{The flowchart of constraint Bayesian optimization with twin model.}
+        \label{fig: constraint bay opt}
+    \end{center}
+\end{figure}
+
+
+
+
 \subsection{Application to a return bend }
 \label{examples}
+Gas turbine blades are designed to operate at high temperatures.
+
 High-fidelity turbulence simulation and RANS twin model\\
 Fit for a twin model for the Reynold stress in RANS model.
 Consider twin model as a one-equation model.
@@ -1823,7 +2166,9 @@ Consider twin model as a one-equation model.
 %    with $\lambda(T) = 0$ and $\lambda\big|_{\partial \Omega} = 0$.\\
 %    Need to show: if $\|F_1-F_2\|$ and $\|q_1-q_2\|$ are bounded, then
 %    $\|\lambda_1-\lambda_2\|$ is bounded.
-    \section{Proof of theorem \ref{theorem: 3}: optimization convergence}
+    \section{Proof of theorem \ref{theorem: 2}: optimization convergence}
+    \label{proof convergence append}
+    To be proven.
 \end{appendices}
 
 \begin{thebibliography}{9}
@@ -1867,6 +2212,11 @@ Biometrika 87.1 (2000): 1-13.
 A. O'Hagan 
 "A Markov property for covariance structures." 
 Nottingham University Statistics Research Report 13 (1998).
+
+\bibitem{MCMC hyperparameters}
+Murray, Iain, and Ryan P. Adams. 
+"Slice sampling covariance hyperparameters of latent Gaussian models." 
+Advances in Neural Information Processing Systems. 2010.
 
 \bibitem{Krigingold}
 Oliver, Margaret A., and R. Webster. 
@@ -2015,10 +2365,10 @@ N.M. Alexandrov, E.J. Nielsen, R.M. Lewis, W.K. Anderson
 Applied to Multi-Element Airfoil Optimization"
 8th AIAA Symposium on Multidisciplinary Design and Optimization (2000)
 
-\bibitem{equality nonlinear constraint trust region opt}
-Conn, Andrew R., Nicholas IM Gould, and Philippe Toint. 
-"A globally convergent augmented Lagrangian algorithm for optimization with general constraints and simple bounds."
-SIAM Journal on Numerical Analysis 28.2 (1991): 545-572.
+%\bibitem{equality nonlinear constraint trust region opt}
+%Conn, Andrew R., Nicholas IM Gould, and Philippe Toint. 
+%"A globally convergent augmented Lagrangian algorithm for optimization with general constraints and simple bounds."
+%SIAM Journal on Numerical Analysis 28.2 (1991): 545-572.
 
 \bibitem{coarse discretization}
 N.M. Alexandrov, R.M. Lewis, C.R. Gumbert, L.L. Green, P.A. Newmann
@@ -2304,6 +2654,23 @@ Annual review of fluid mechanics 30.1 (1998): 539-578.
 Li, Wu, Luc Hyuse, and Sharon Padula. 
 "Robust airfoil optimization to achieve consistent drag reduction over a Mach range."
 No. ICASE-TR-2001-22. INSTITUTE FOR COMPUTER APPLICATIONS IN SCIENCE AND ENGINEERING HAMPTON VA, 2001.
+
+\bibitem{ubend rans opt 1}
+Verstraete, Tom, et al. 
+"Optimization of a U-Bend for Minimal Pressure Loss in Internal Cooling Channels—Part I: Numerical Method." 
+Journal of Turbomachinery 135.5 (2013): 051015.
+
+\bibitem{ubend rans opt 2}
+Coletti, Filippo, et al. 
+"Optimization of a U-Bend for Minimal Pressure Loss in Internal Cooling Channels—Part II: Experimental Validation." 
+Journal of Turbomachinery 135.5 (2013): 051016.
+
+% ------- proof of convergence -------
+\bibitem{Torn and Zilinskas}
+Aimo Torn, Antanas Zilinskas
+"Global Optimization"
+Springer-Verlag New York, Inc. New York, NY, (1989)
+
 
 \end{thebibliography}
 
