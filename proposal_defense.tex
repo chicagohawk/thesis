@@ -23,45 +23,49 @@ $$ $$
 
 \noindent Gray-box simulations of partial differential equations (PDE) are
 present in many engineering applications. 
-Unlike black-box simulations, we have some but limited
-insights of the PDEs in gray-box simulations.
+We have some but limited
+insights of the PDEs in gray-box simulations, and can obtain the space or space-time 
+solution from each gray-box simulation.
 My thesis is interested in the optimization based on gray-box simulations,
 which is a common task in the engineering community.
-Conventional optimization practices treat the gray-box simulation
-as black-box. In many scenarios the gray-box simulation does not have adjoint implementations,
+In many scenarios the gray-box simulation does not have adjoint implementations,
 so we can not compute sensitivities, specifically the gradients of 
 the optimization's objective function, in an efficient way. 
+So conventional optimization practices generally treat the gray-box simulation
+as only a calculator for the objective function. 
 When the dimension of optimization parameters is high,
 such conventional practices may require large amount of simulations which can be 
-computational prohibitable.\\
+computational prohibitive.\\
 
 \noindent My thesis proposes an efficient methodology for
 high-dimensional optimization problems by leveraging the limited insights
-about the gray-box simulations. My method constructs a physics-based surrogate, 
-called twin model.
-In contrast to conventional PDE surrogates with fixed-physics, twin model has
-flexible physics so it can be trained by morphing itself 
-to mimic the gray-box simulation. The training takes advantage of the 
-space-time solution in time-dependent simulations, or space-solution in time-independent
-simulations. These solutions generally contain much more information 
-about the gray-box simulation than the optimization's objective function alone.
-Because the twin model has the adjoint capability, the gradient of the objective function
-can be computed efficiently on twin model.\\
+and the space or space-time solution of the gray-box simulation. 
+My method constructs a PDE surrogate, 
+called twin model, to serve as a low-fidelity proxy of the gray-box simulation. 
+The innovation of my research is: the twin model mimics the gray-box simulation's space 
+or space-time solution, instead of mimicing just the objective function.
+The twin model first constructs a parameterized surrogate PDE using the limited insights of the 
+gray-box simulation, then tunes the parameters to match the 
+gray-box simulation's space or space-time solution.
+Generally the space or space-time solution contains much more information 
+about the gray-box simulation than the objective function alone.\\
 
-\noindent Optimization can be performed in a multi-fidelity framework using twin model, in which
-the twin model is low-fidelity, and the gray-box simulation is high-fidelity.
+\noindent Adjoint can be implemented in the twin model to 
+compute the gradient of the objective function with respect to design variables efficiently.
+Optimization can be performed in a multi-fidelity framework using the low-fidelity
+twin model and the high-fidelity gray-box simulation.
 My thesis proposes a provably convergent Bayesian optimization scheme that combines
-the evaluations of the gray-box objective function with the twin model gradient.
-For completeness we also extend the framework to deal with optimization problems 
-with linear and nonlinear constraints.
+the evaluations of the gray-box' objective function with the twin model's gradient.
+For completeness we also extend the optimization framework to constraint optimization.
 \\
 
-\noindent We demonstrate our method in a turbulence flow simulation in a turbine airfoil
-trailing edge cooling problem. The gray-box
-simulation is an performed by OpenFOAM, a gray-box simulation with no adjoint capability,
-using large eddy simulation (LES). The twin model is a Reynolds-averaged Navier-Stokes (RANS)
-equations model with flexible Reynold stress modelling. We optimize a U-bend
-geometry to minimize the pressure loss across U-bend, constrained by minimum heat transfer.
+\noindent We demonstrate our method by a turbulent flow optimization in a turbine airfoil
+internal cooling problem. The gray-box
+simulation is performed by a large eddy simulation (LES). 
+The twin model is a Reynolds-averaged Navier-Stokes (RANS)
+equations model with adaptive Reynold stress modelling. We optimize a return bend
+geometry to minimize the pressure loss, and compare our result with state-of-art 
+optimal designs.
 
 
 \newpage
@@ -1158,6 +1162,7 @@ match even if we do not solve for the one-shot solution $\tilde{u}$. Under what 
 can we bound $Err_G$? We give the following theorem.\\
 \fbox{\parbox{\textwidth}{
 \begin{theorem}
+    \textbf{Global-local error}\\
     Consider the timestepwise mapping of the twin model
     \begin{equation}
         G:\, \mathbb{R}^n\mapsto\mathbb{R}^n,\, \tilde{u}^i\rightarrow 
@@ -1353,24 +1358,24 @@ The weighting scheme may be ad hoc, but can possibly
 improve the twin model's accuracy for specific numerical examples.\\
 
 
-\noindent Thirdly, in section \ref{adaptive}, we discussed twin model with adaptive structure.
-The proposed approach constructs a \emph{fixed} candidate basis library 
-(Volterra series, wavelet scaling functions, and sigmoid functions), then selects a subset of basis
-from the library.
-However, the cardinality of the basis library can be high for flux functions with a large number
-of inputs, for example $F(u_1,\cdots,u_n)$ with a large $n$. Besides, the proposed basis
-library may be inefficient to represent flux of the form $F(\mathbf{w}^T \mathbf{u})$, where 
-$\mathbf{w}$ is
-a constant vector. Although $F(\mathbf{w}^T \mathbf{u})$ can be reduced to a univariate
-function by a change of variable $u^* = \mathbf{w}^T \mathbf{u} \in\mathbb{R}$, 
-the fixed basis library 
-can not take advantage of it.
-Therefore, the twin model method may be improved by choosing 
-a set of basis from an \emph{non-fixed} basis library.
-A literature survey is required 
-to determine the most appropriate method to use.
+%\noindent Thirdly, in section \ref{adaptive}, we discussed twin model with adaptive structure.
+%The proposed approach constructs a \emph{fixed} candidate basis library 
+%(Volterra series, wavelet scaling functions, and sigmoid functions), then selects a subset of basis
+%from the library.
+%However, the cardinality of the basis library can be high for flux functions with a large number
+%of inputs, for example $F(u_1,\cdots,u_n)$ with a large $n$. Besides, the proposed basis
+%library may be inefficient to represent flux of the form $F(\mathbf{w}^T \mathbf{u})$, where 
+%$\mathbf{w}$ is
+%a constant vector. Although $F(\mathbf{w}^T \mathbf{u})$ can be reduced to a univariate
+%function by a change of variable $u^* = \mathbf{w}^T \mathbf{u} \in\mathbb{R}$, 
+%the fixed basis library 
+%can not take advantage of it.
+%Therefore, the twin model method may be improved by choosing 
+%a set of basis from an \emph{non-fixed} basis library.
+%A literature survey is required 
+%to determine the most appropriate method to use.
 
-\noindent Fourthly, we need to extend the basis selection scheme to time-independent PDEs.
+\noindent Thirdly, we need to extend the basis selection scheme to time-independent PDEs.
 Right now, the basis selection scheme in section \ref{adaptive} is only for time-dependent PDEs.
 Using a global-local error approach and a finite difference approximation, the basis
 selection problem was reduced to a linear basis selection problem. If we want to infer
@@ -1887,6 +1892,7 @@ In this section, we extend the theoretical result to sample both the exact funct
 noisy function gradient.\\
 \fbox{\parbox{\textwidth}{
 \begin{theorem}
+    \textbf{The design sequence is dense.}\\
     Assume
     \begin{enumerate}
         \item $\mathcal{X} \in \mathbb{R}^n$, $\|\cdot\|$ be the $L_2$ norm defined on $\mathcal{X}$.
@@ -1911,10 +1917,10 @@ noisy function gradient.\\
     Let 
     \begin{enumerate}
         \item $f\in \mathcal{H}$ be the underlying objective function to maximize. 
-        \item $g\in\mathcal{H}^\prime$ be the noisy gradient of $f$. 
-        \item $\epsilon$ be the gradient sample noise
+        \item $\epsilon \in\mathcal{H}^\prime$ be the gradient sample noise.
+        \item $g$ be the noisy gradient of $f$,
               $$
-                  \epsilon = g - \nabla f\,.
+                  g = \epsilon + \nabla f\,.
               $$
     \end{enumerate}
     Let the optimization strategy generates the design sequence according to 
@@ -2017,20 +2023,161 @@ The framework is shown in Fig \ref{fig: constraint bay opt}.
 
 
 
-
-\subsection{Application to a return bend }
+\newpage
+\section{Application to a turbulent flow optimization}
 \label{examples}
-Gas turbine blades are designed to operate at high temperatures.
-
-High-fidelity turbulence simulation and RANS twin model\\
-Fit for a twin model for the Reynold stress in RANS model.
-Consider twin model as a one-equation model.
-\begin{figure}[H]
+\subsection{Problem description}
+\noindent Gas turbine blades are designed to operate at high temperatures. Because 
+materials employed for turbine components may not withstand such high termperatures,
+cooling should be applied to the blades for safety. One cooling method is
+to drill tubes inside the blades to circulate the coolant air, shown in Fig\ref{fig: ubend picture}.
+The pressure to drive the coolant flow is diverted from the compressor, thus resulting
+in a penalty to the turbine efficiency.
+An effective design should have minimal coolant flow rate and/or pressure drop penalty 
+\cite{ubend rans opt 1, ubend rans opt 2}.
+Generally, the cooling tube layout looks like a stack of several \emph{return bends}.
+Therefore, some researchers consider optimizing the design of a single return bend
+for simplicity. Optimization based on flow simulation have been employed to optimize
+the return bend geometry. Generally such flow is turbulent, since the Reynolds number 
+can be tens of thousands ($\sim$40,000 \cite{ubend rans opt 2}). 
+Also, the flow may contain several complex
+features, such as separation and reattachment, which are not captured well in the low-fidelity
+simulations. Although a high-fidelity PDE model can be used to simulate the flow, 
+the computational cost can be prohibitively expensive when the design space is high. 
+\begin{figure}[H]\begin{center}
     \includegraphics[height=5cm]{ubend.png}
-    \includegraphics[height=5cm]{overall_mesh.png}
-    \includegraphics[height=5cm]{OpenFOAM_mesh.png}
-\end{figure}
+    \caption{Example of turbine blade cooling tubes.
+    \emph{Image from: http://www.amateras-tyo.biz/eng/technologies.html}}
+    \label{fig: ubend picture}
+\end{center}\end{figure}
 
+\noindent Currently, adjoint method has not been implemented for high-fidelity PDE simulations
+like DNS and LES. So efficient gradient evaluation of the high-fidelity PDE models 
+are not available.
+However, there are a set of low-fidelity models like RANS. 
+RANS can be evaluated more cheaply; and adjoint can be implemented on RANS easily.
+Because the high-fidelity simulations can provide
+space-time solutions of all relevant flow quantities (velocity, pressure, etc), we consider
+training RANS models using the time averged space-time solution of the high-fidelity simulation.
+Therefore, we will consider the gray-box high-fidelity simulations as the primal model,
+and consider the trained RANS model the twin model.
+Generally, the Mach number in such flows are low ($\sim$0.05 \cite{ubend rans opt 1}),
+so we may focus on incompressible models. Besides, we will model the flow as two dimensional
+for simplicity.
+\\
+
+\subsection{Review of incompressible RANS models}
+\noindent RANS are time averaged equations of motion for fluid flow.
+The idea behind the equation is Reynolds decomposition, where the flow instantaneous
+quantities are decomposed into its time-averaged and fluctuating quantities.
+For a stationary incompressible Newtonian fluid, the equations are
+\begin{equation}\begin{split}
+    \nabla\cdot \bar{\mathbf{u}} &= 0\\
+    \rho \bar{\mathbf{u}}\cdot \nabla \bar{\mathbf{u}} &= -\nabla \bar{p} + \mu \nabla^2
+    \bar{\mathbf{u}}
+    -{\rho} \nabla \cdot\left(\overline{\mathbf{u}^\prime \mathbf{u}^\prime}\right)\,.
+\end{split}\end{equation}
+Here the instantaneous velocity $\mathbf{u} = (u,v)^T$ is decomposed as 
+$\mathbf{u} = \bar{\mathbf{u}} + \mathbf{u}^\prime$. $\bar{\mathbf{u}}$ is the 
+time-averaged velocity and $\mathbf{u}^\prime$ is the fluctuating velocity.
+Similarly $p = \bar{p} + p^\prime$.
+$\rho$ is the constant density, $\mu$ is the dynamic viscosity.
+The term
+\begin{equation}
+    \mathbf{R} = \rho \overline{\mathbf{u}^\prime \mathbf{u}^\prime}
+\end{equation}
+is called \emph{Reynolds stress}.\\
+
+\noindent Modelling the Reynolds stress is recognized as a closure problem, and
+is a subject of intense interest for almost a century. 
+There are many models for Reynolds stress, in which a popular class of 
+models is based on the \emph{Boussinesq hypothesis} \cite{Wilcox CFD}.
+Boussinesq hypothesis models the Reynolds stress by a linear constitutive relationship with
+the mean flow straining field:
+\begin{equation}
+    \mathbf{R} = -\mu_t \left( \nabla \bar{\mathbf{u}} + \nabla \bar{\mathbf{u}}^T\right)
+    + \frac{1}{3}\rho \bar{\mathbf{u}} \cdot \bar{\mathbf{u}} \boldsymbol{I}
+\end{equation}
+$\mu_t$ is called \emph{eddy viscosity}. 
+$\nu_t = \mu_t/\rho$ is called \emph{kinematic eddy viscosity}.
+The only term that needs to be modelled for closure is $\mu_t$ (or $\nu_t$).\\
+
+\noindent Depending on how $\mu_t$ is modelled, most RANS models based
+on Boussinesq hypothesis can be categorized in to three classes:
+\emph{zero equation models}, \emph{one equation models}, and \emph{two equation models}.
+Zero equation models do not require the solution of additional equations.
+$\mu_t$ is calculated directly from \emph{local} flow variables. Therefore, zero
+equation models may not be able to capture the phenomenons like convections and diffusions
+of turbulent energy.
+For example, a classical zero equation model is the Prandtl's mixing length model 
+\cite{Wilcox CFD}:
+\begin{equation}
+    \mu_t = \rho \left| \frac{\partial u}{\partial y} \right| l_m^2\,,
+    \label{Prandtl mixing length}
+\end{equation}
+where $\frac{\partial u}{\partial y}$ is the partial derivative of the streamwise velocity
+with respect to the wall normal direction.
+One equation models require the solution of one additional equation. Generally the additional
+equation is a transport equation of a quantity related to the eddy viscosity.
+For example, the Baldwin-Barth model \cite{Wilcox CFD} decomposes $\mu_t$ as
+\begin{equation}
+    \mu_t =  C_\mu\mu \tilde{R}_T D_1 D_2\,,
+\end{equation}
+where $C_\mu$ is a constant, $D_1$, $D_2$ are spatial-dependent variables, $\mu \tilde{R}_T$
+is solved by a transport equation.
+Two equation models require the solution of two additional equations. 
+An example is the \emph{k-epsilon models}
+\cite{Wilcox CFD}.
+k-epsilon models assume the eddy viscosity to be
+\begin{equation}
+    \mu_t = C_\mu \frac{k^2}{\epsilon}\,,
+\end{equation}
+where
+\begin{equation}\begin{split}
+    k = \frac{\bar{u^\prime}^2 + \bar{v^\prime}^2 }{2}
+\end{split}\end{equation}
+is the \emph{turbulent kinetic energy},
+\begin{equation}
+    \epsilon = \nu \overline{ 
+    \left(\nabla\mathbf{u}^\prime\right) :\left( \nabla\mathbf{u}^\prime \right)^T}
+\end{equation}
+is the \emph{turbulent dissipation rate}, 
+and $C_\mu$ is a constant.
+k-epsilon models solve two transport equations for $k$ and $\epsilon$.
+Generally, two-equation models are better at capturing some turbulent flow features
+such as convection and diffusion of turbulent energy, detachment, and reattachment
+\cite{Wilcox CFD}.
+\\
+
+\subsection{Future work}
+\noindent We will optimize the return bend geometry to minimize the pressure loss using the
+proposed optimization framework. We may parameterize the return bend
+geometry by a set of \emph{design nodes} on the inner and outter boundaries, 
+and use a spline interpolation to generate the
+boundaries. The dimension of the design space will be the number of design nodes.
+We will use tens of design nodes, which yields a challenging high-dimensional optimization problem.
+There has been researches on this topic both numerically and experimentally
+\cite{ubend rans opt 1, ubend rans opt 2}. These researches can benchmark our results.
+However, instead of optimizing for the low-fidelity model's
+optimal which was the practice of most previous researches,
+we aim at optimizing for the high-fidelity model's optimal.\\
+
+\noindent We will implement an LES model in OpenFoam to serve as the high-fidelity gray-box 
+simulation; and implement a one-equation or two-equation RANS model in python to
+serve as the low-fidelity twin model. We will implement adjoint in the RANS model, using
+an automatic differentiation toolbox.
+In the RANS model, the equation(s) of the eddy viscosity will be adaptive.
+Further investigation is required to find appropriate forms of the adaptive 
+eddy viscosity equation, and to adaptively select the basis for the eddy viscosity equation(s). 
+After that, we will train the adaptive RANS model with the high-fidelity simulation's time-averaged 
+space-time solutions. Then we can use the proposed Bayesian optimization framework 
+to perform optimization. In the end, 
+we will survey existing designs in literatures, and compare them with
+our optimal design, using the LES simulation.\\
+
+
+
+\newpage
 \begin{appendices}
     \section{Proof of theorem \ref{theorem: 1}: global-local error}
     \label{appendix 1}
@@ -2166,7 +2313,7 @@ Consider twin model as a one-equation model.
 %    with $\lambda(T) = 0$ and $\lambda\big|_{\partial \Omega} = 0$.\\
 %    Need to show: if $\|F_1-F_2\|$ and $\|q_1-q_2\|$ are bounded, then
 %    $\|\lambda_1-\lambda_2\|$ is bounded.
-    \section{Proof of theorem \ref{theorem: 2}: optimization convergence}
+    \section{Proof of theorem \ref{theorem: 2}: design sequence is dense}
     \label{proof convergence append}
     To be proven.
 \end{appendices}
@@ -2664,6 +2811,11 @@ Journal of Turbomachinery 135.5 (2013): 051015.
 Coletti, Filippo, et al. 
 "Optimization of a U-Bend for Minimal Pressure Loss in Internal Cooling Channels—Part II: Experimental Validation." 
 Journal of Turbomachinery 135.5 (2013): 051016.
+
+\bibitem{Wilcox CFD}
+Wilcox, David C. 
+"Turbulence modeling for CFD." 
+Vol. 2. La Canada, CA: DCW industries, (1998)
 
 % ------- proof of convergence -------
 \bibitem{Torn and Zilinskas}
