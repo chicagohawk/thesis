@@ -26,5 +26,6 @@
 \contentsline {subsection}{\numberline {5.1}Problem description}{37}
 \contentsline {subsection}{\numberline {5.2}Review of incompressible RANS models}{37}
 \contentsline {subsection}{\numberline {5.3}Future work}{38}
-\contentsline {section}{Appendices}{40}
-\contentsline {section}{\numberline {A}Proof of theorem 1\hbox {}: global-local error}{40}
+\contentsline {section}{\numberline {6}Appendices}{40}
+\contentsline {subsection}{\numberline {6.1}Proof of theorem 1\hbox {}: global-local error}{40}
+\contentsline {section}{\numberline {7}References}{42}

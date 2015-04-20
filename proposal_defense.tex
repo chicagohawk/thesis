@@ -3,6 +3,7 @@
 \usepackage[]{algorithm2e}
 \usepackage[toc, page]{appendix}
 \usepackage{pdfpages, nomencl, pifont}
+\usepackage[nottoc, numbib]{tocbibind}
 \usepackage{tikz}
 \usetikzlibrary{positioning,shadows,arrows}
 \usepackage[font=sl, labelfont={sf}, margin=1cm]{caption}
@@ -2358,8 +2359,9 @@ our optimal design, using the LES simulation.\\
 
 
 \newpage
-\begin{appendices}
-    \section{Proof of theorem \ref{theorem: 1}: global-local error}
+%\begin{appendices}
+\section{Appendices}
+    \subsection{Proof of theorem \ref{theorem: 1}: global-local error}
     \label{appendix 1}
     \emph{Proof:} Consider a primal model and a twin model solving
     for the space-time solution $u$ and $\tilde{u}$ on the same
@@ -2499,8 +2501,10 @@ our optimal design, using the LES simulation.\\
 %    \label{proof convergence append}
 %    To be proven.
 
-\end{appendices}
 
+%\end{appendices}
+
+\newpage
 \begin{thebibliography}{9}
 \bibitem{hanmaster} 
 Han Chen.
