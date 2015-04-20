@@ -2,7 +2,7 @@
 \usepackage{amsmath, amsthm, graphicx, amssymb, wrapfig, fullpage, subfigure, array,float}
 \usepackage[]{algorithm2e}
 \usepackage[toc, page]{appendix}
-\usepackage{pdfpages}
+\usepackage{pdfpages, nomencl, pifont}
 \usepackage{tikz}
 \usetikzlibrary{positioning,shadows,arrows}
 \usepackage[font=sl, labelfont={sf}, margin=1cm]{caption}
@@ -11,6 +11,7 @@
 \theoremstyle{remark}
 \newtheorem{theorem}{Theorem}
 \newtheorem{remarker}{Remark}
+\makenomenclature
 
 \begin{document}
 \setcounter{page}{1}
@@ -21,34 +22,34 @@ $$ $$
 \Large\textbf{Abstract}\\
 \normalsize
 
-\noindent Gray-box simulations of partial differential equations (PDE) are
+\noindent Gray-box simulations of conservation laws are
 present in many engineering applications. 
 We have some but limited
 insights of the PDEs in gray-box simulations, and can obtain the space or space-time 
-solution from each gray-box simulation.
+solution of the flow variables from each gray-box simulation.
 My thesis is interested in the optimization based on gray-box simulations,
 which is a common task in the engineering community.
-In many scenarios the gray-box simulation does not have adjoint implementations,
-so we can not compute sensitivities, specifically the gradients of 
-the optimization's objective function, in an efficient way. 
+In many scenarios the gray-box simulation does not have adjoint implemented,
+so we can not compute efficiently the gradients of 
+the optimization's objective function with respect to the design variables. 
 So conventional optimization practices generally treat the gray-box simulation
 as only a calculator for the objective function. 
-When the dimension of optimization parameters is high,
+When the dimension of design variables is high,
 such conventional practices may require large amount of simulations which can be 
-computational prohibitive.\\
+computationally prohibitive.\\
 
 \noindent My thesis proposes an efficient methodology for
 high-dimensional optimization problems by leveraging the limited insights
 and the space or space-time solution of the gray-box simulation. 
 My method constructs a PDE surrogate, 
-called twin model, to serve as a low-fidelity proxy of the gray-box simulation. 
+called twin model, to serve as a low-fidelity avatar of the gray-box simulation. 
 The innovation of my research is: the twin model mimics the gray-box simulation's space 
 or space-time solution, instead of mimicing just the objective function.
 The twin model first constructs a parameterized surrogate PDE using the limited insights of the 
 gray-box simulation, then tunes the parameters to match the 
 gray-box simulation's space or space-time solution.
 Generally the space or space-time solution contains much more information 
-about the gray-box simulation than the objective function alone.\\
+about the gray-box simulation than the objective function.\\
 
 \noindent Adjoint can be implemented in the twin model to 
 compute the gradient of the objective function with respect to design variables efficiently.
@@ -56,10 +57,10 @@ Optimization can be performed in a multi-fidelity framework using the low-fideli
 twin model and the high-fidelity gray-box simulation.
 My thesis proposes a provably convergent Bayesian optimization scheme that combines
 the evaluations of the gray-box' objective function with the twin model's gradient.
-For completeness we also extend the optimization framework to constraint optimization.
+For completeness, we extend the optimization framework to constraint optimization.
 \\
 
-\noindent We demonstrate our method by a turbulent flow optimization in a turbine airfoil
+\noindent We propose to demonstrate our method by a turbulent flow optimization in a turbine airfoil
 internal cooling problem. The gray-box
 simulation is performed by a large eddy simulation (LES). 
 The twin model is a Reynolds-averaged Navier-Stokes (RANS)
@@ -71,124 +72,185 @@ optimal designs.
 \newpage
 \tableofcontents
 
-\newpage
-\section{Nomenclatures}
 
 \newpage
 \section{Background}
 \label{intro}
 
-\subsection{Optimization based on gray-box PDE simulation}
+\subsection{Optimization based on gray-box conservation laws}
 Optimization problems is of great interest in the engineering community. We consider minimizaing an
 objective function:
 $$
     J: \mathcal{C} \in \mathbb{R}^d\times [0,T] \rightarrow \mathbb{R}, \qquad c(t) \rightarrow J(c)\,,
 $$
-where $c(t) \in \mathbb{R}^d$ for $\forall t$. $c(t)$ is the control variable to be optimized.
+where $c(t) \in \mathbb{R}^d$ for $\forall t$. $c(t)$ is the design variable to be optimized.
 In many cases, the objective function is an ouput of
-a PDE based, spatial-time simulation. 
-These simulations are generally implementations of physics models, and can provide accurate predictions for
-the output quantity of interest.
-For illustration purpose, we will mostly use oil reservoir management and optimization problems.
-Though the method being developed is not restricted to reservoir problems.\\
+a PDE based spatial-time simulation of conservation laws. 
+For example, oil reservoir simulations may employ PDEs of the black-oil model, 
+in which gas, water, and oil phases satisfy a set of conservation laws 
+\cite{reservoir simulation book}. 
+We may optimize the water injection logistics to maximize total oil production in a time window.
+Another example is the DNS simulation for turbulent internal flow, in which mass, momentum, and energy
+satisfy a set of conservation laws
+\cite{Wilcox CFD}.
+We may optimize the wall geometry to minimize the pressure loss.
+The simulations employed for optimization are generally
+implementations of PDEs for conservation laws, and can provide accurate predictions for
+the output quantity of interest.\\
 
-\noindent In many cases, PDE-based simulations implement complex physics models and exotic solution techniques, and
-the physics models and implementations of solving the PDEs may not
+\noindent In many cases, such simulations implement complicated PDEs and exotic solution techniques.
+Besides, the PDEs and their numerical implementations may not
 be accessible. For example, many industrial reservoir simulators are proprietary, such as \textit{Eclipse} (Schlumberger), 
-\textit{VIP} (Halliburton), and \textit{PSim} (ConocoPhillips). During an internship in ConocoPhillips, the author got a chance to
+\textit{VIP} (Halliburton), and \textit{PSim} (ConocoPhillips). During an internship in ConocoPhillips, 
+I got a chance to
 look at \textit{PSim}'s source code. It turns out to be a million-line, \textit{Fortran77}, legacy code developed for decades.
 Therefore, even when the source code and the documentation are availble, it can still take tremendous amount of man power
-to access or modify the code.
-We call such simulations \emph{black-box}, in the sense that the only duty of the simulation is to compute the objective function:
+to access, modify, and maintain the code.
+When we have no insights of the PDEs or can not access its space-time solution,
+the only duty of such simulations is to calculate the objective function
 \begin{equation}
     J = J(c;\kappa) \in \mathbb{R}\,,
 \end{equation}
 where $\kappa\in \mathbb{R}^n$ are some pre-defined model properties (for example, porosity and permeability in oil reservoir simulation).
-$c$ is the control variable to be optimized. The controls can also be not inside the PDE,
-but are parameters that defines the spatial domain of solving the PDE, for example, 
-in airfoil optimizations.
-Fortunately, although it may be difficult to access the details of the simulation, it's 
+$c$ is the design variable to be optimized. 
+We call such simulations \emph{black-box}.\\
+
+\noindent Fortunately, although it may be difficult to access the details of the PDEs, it's 
 often easy to write down
 the abstract form of the PDE. For example, many reservoir simulations can be written as \cite{reservoir simulation book}
 \begin{equation}\begin{split}
     &\eta\frac{\partial u}{\partial t} + \nabla \cdot F(u, \kappa) = q(u,c)\\
-    &J = \int_0^T\int_\Omega j(u,c) \; \textrm{d}t \textrm{d}\mathbf{x}
+    &J = \int_0^T\int_\Omega j(u,c) \; \textrm{d}t \textrm{d}\mathbf{x}\,,
 \end{split}\end{equation}
-generally with an impermeable boundary condition or other known boundary conditions. 
+with an impermeable reservoir boundary condition and known boundary conditions at well locations. 
 $u\in \mathbb{R}^n$ includes field quantities like pressure and saturation. $\eta, \kappa\in \mathbb{R}^n$ 
-are geology properties like porosity and permeability. $q\in \mathbb{R}^n$ is a known or
-unknown model for the volumetric change of $u$. 
-$F\in \mathbb{R}^n$ is an unknown flux term. And $c$ is the time-space-dependent control variable, for example 
-water injection rates. Another observation is, 
-given $c$ and $\kappa$, many simulators can output the discretized $u(t,x)$ in addition to $J$.
-We will call such simulations \textit{gray-box} simulations \cite{review of black-box modeling}
+are geology properties like porosity and permeability. $q\in \mathbb{R}^n$ is a known 
+model for the volumetric change of $u$. 
+$F\in \mathbb{R}^n$ is an unknown flux term. $c$ is the space-time-dependent design variable
+such as water injection rates. Besides, many simulators can output the discretized $u(t,x)$ in addition to $J$.
+For each evaluation of $J$ given $\kappa$ and $c$, the discretized space-time solution is generally 
+a large file.
+We will call such simulations \textit{gray-box} \cite{review of black-box modeling}
 , in order to distinguish \textit{black-box} simulations where 
-the underlying PDE, the boundary conditions, and $u(t,x)$ are unknown.
-The opposite of black-box simulation is \emph{open-box} simulation.\\
+the PDE and its implementation is unknown and the space-time solution is unavailable.
+Besides, in many cases, the simulations do not implement adjoint; this property
+is shared by gray-box and black-box simulations. We will discuss the role of adjoint in more detail
+in section \ref{gradfree_gradbased}.
+If the PDE and its implementation is known, and if adjoint is implemented,
+we call such simulations \emph{open-box}.
+We summarize their differences in Table \ref{tab: boxes}.\\
+\begin{center}
+    \captionof{table}{Comparison of black-box, gray-box, and open-box simulations}
+    \label{tab: boxes}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+                   & PDE       & Implementation & Space-time solution & Adjoint\\ \hline
+        Black-box  & \ding{56} & \ding{56}      & \ding{56}        & \ding{56}  \\ \hline
+        Gray-box   & \ding{52} \hspace{-.4cm} \textbf{\textbackslash}
+                   & \ding{56}      & \ding{52}       & \ding{56}   \\ \hline
+        Open-box   & \ding{52}      & \ding{52} &          &    \ding{52}      \\ \hline
+    \end{tabular}
+\end{center}
 
-\noindent Thanks to the complexity of physics models and large time-space scale involved, 
-running a PDE-based simulation can be computationally expensive. 
+\noindent Thanks to the complicated physics models in the PDEs and large space-time scale involved, 
+running a PDE-based simulation can be computationally expensive in many cases. 
 In addition, optimization problems may entail a large number of 
-PDE simulations. To give insights to this issue, let's suppose the time domain $[0,T]$ is discretized into $m$ points, 
-then we need to search in a $\mathbb{R}^{d\times m}$
-space for the optimum. When $d\times m$ is larger, more simulations may be invoked due to the larger search space.
-Therefore optimization based on PDE-simulations can be costly.\\
+PDE simulations, especially when the design space is high-dimensional.
+Therefore, optimization based on PDE-simulations can be costly.\\
 
-\noindent We will restrict our attention to optimization based on gray-box simulations with a high-dimensional control space.
+\noindent We will restrict our attention to optimization based on gray-box simulations with a high-dimensional design space.
 
-\subsection{Problem setup}
+\subsection{Prototypes for conservation laws and objective functions}
 \label{psetup}
-We consider the PDE governing the gray-box simulation to take the form:
+\noindent We will consider two prototypes of conservation laws governing the gray-box simulation: 
+time-dependent and time-independent conservation laws.\\
+
+\noindent For time-dependent conservation laws, the prototype is
 \begin{equation}
-    \frac{\partial\eta_i u_i(t,x)}{\partial t} + \nabla \cdot 
+    \frac{\partial}{\partial t}\left(\eta_i u_i\right) + \nabla \cdot 
     F_i(\mathcal{D} u, \kappa) 
-    = q_i(u,c(t,x))\,, \qquad i=1,\cdots, n\,,
+    = q_i(u,c)\,, \qquad i=1,\cdots, n\,,
     \label{first equation}
 \end{equation}
-where $x\in \Omega \subseteq \mathbb{R}^{n}$ is the spatial coordinate.
-$\partial \Omega$ is the boundary. $t\in[0,T]$ is time.
-The boundary condition is known. $F_i(\cdot, \cdot)$'s are the unknown flux functions. 
+where $t\in[0,T]$ is time;
+$x\in \Omega \subseteq \mathbb{R}^{n}$ is the spatial coordinate.
+$\Omega$ may depend on the design $c$.
+$q_i$'s are the source terms that may also depend on $c$.
+$c$ is the design variable and may be space-time dependent.
+The boundary condition is known. $F_i$'s are the flux functions. 
+The flow variables are 
 $u = \{u_1, \cdots, u_n\}$.\\
 $\mathcal{D} u = \left\{u_1, \nabla u_1 , \cdots, \nabla^{i_1} u_1; \cdots;
 u_n, \nabla u_n,\cdots, \nabla^{i_n} u_n\right\}$, where $\nabla^j$ indicates the $j$th
 order spatial derivative tensor. We assume $i_1,\cdots, i_n$, i.e. the maximum 
 order of derivatives, are known.
 $\eta_i=\eta_i(x), \,\kappa=\kappa(x)$ are 
-problem dependent spatial variables, and is assumed known. $c(t,x)$ is a spatial-time-dependent control variable.
-$q_i(\cdot,\cdot)$'s are known or unknown functions.
-The discretized space-time solution of Eqn\eqref{first equation} given by a simulator
-is written as $\hat{u}(t_i, \mathbf{x}_i; c)\,,\, i=1,\cdots,N$.\\
+problem dependent spatial variables, and are assumed known. 
+The discretized space-time solution of Eqn\eqref{first equation} given by a gray-box simulation
+is written as $\hat{u}(t_i, \mathbf{x}_i; c)\,,\, i=1,\cdots,N$, where 
+$t=\left\{t_1,\cdots, t_N\right\}$ indicates the discretized time, and 
+$\mathbf{x}_i$ indicates the spatial discretization at time $t_i$.\\
 
 \noindent The objective function is defined by
 \begin{equation}
     J = \int_0^T \int_\Omega j(u,c) \textrm{d}\mathbf{x}\textrm{d}t
 \end{equation}
-Notice $j$ can depend explicitly on c, while $u$ depends implicitly on $c$.\\
+Notice $j$ can depend explicitly on c, while $u$ depends implicitly on $c$.
+We will consider unconstraint optimization unless otherwise specified.\\
 
-\noindent Let's consider a concrete example. Consider a simulator modeling two phase flow in porous media.
-One of the simplest yet classical model for two-phase porous media flow is the Buckley-Leverett model \cite{Buckley Leverett}. 
-It models the displacement process of two-phase flow due to capillary pressure and Darcy's law \cite{Reservoir Simulation Book}.
+\noindent Similarly, for time-independent conservation laws, the prototype is
+\begin{equation}
+    \nabla \cdot 
+    F_i(\mathcal{D} u, \kappa) 
+    = q_i(u,c)\,, \qquad i=1,\cdots, n\,,
+    \label{first equation steady}
+\end{equation}
+and the objective function is defined by
+\begin{equation}
+    J = \int_\Omega j(u,c) \textrm{d}\mathbf{x}
+\end{equation}
+
+\noindent Notice the time-independent prototype can be seens as a special case 
+of the time-dependent prototype. In many cases, the solution of time-independent PDEs
+can be seens as the converged solution of time-dependent PDEs. If we can evolve 
+Eqn\eqref{first equation} until $\frac{\partial u_i}{\partial t}\rightarrow 0$,
+the converged solution is a solution of Eqn\eqref{first equation steady}.
+In numerical implementations, this corresponds to the pseudo time marching scheme
+for solve time-independent PDEs. Therefore, we will mostly consider the time-dependent 
+prototype.\\
+
+\noindent For illustration purposes, 
+consider an example for the time-dependent prototype. Consider 
+a simulator modeling two phase flow in porous media.
+One of the simplest yet classical model for two-phase porous media flow is the Buckley-Leverett model \cite{Buckley Leverett, Reservoir Simulation Book}. 
+It models the displacement process of two-phase flow due to capillary pressure and Darcy's law.
 The PDE, Buckley-Leverett equation, is
 \begin{equation}
      \frac{\partial u}{\partial t} + \frac{\partial}{\partial x} \left(\frac{u^2}{1+A(1-u)^2}\right) = c\,,
 \end{equation}
-where $u = u(t,x)$, $0\le u\le 1$, is the saturation of phase I (e.g. water), and $1-u$ is the saturation of
-phase II (e.g. oil). $A>0$ is a parameter dependent on the physical property of the two phases.
-$c=c(t,x)$ is the control variable. $c>0$ models the injection of phase I replacing phase II; and $c<0$ vice versa.\\
+where $x\in[0,1]$ is the space domain;
+$u = u(t,x)$, $0\le u\le 1$, is the saturation of phase I (e.g. water), 
+and $1-u$ is the saturation of phase II (e.g. oil);
+$A>0$ is a parameter dependent on the physical property of the two phases;
+$c=c(t,x)$ is the design variable. $c>0$ models the injection of phase I replacing phase II; and $c<0$ vice versa.
+Suppose $A$ is an unknown, we can use the prototype Eqn\eqref{first equation} to 
+model the PDE.\\
 
-\noindent Suppose we want to control the flow through $c$, such that the saturation at $t=T$ is close to 
-a target saturation $u^*(x)$. We introduce an $L_2$ penalty to the objective function for regularization \cite{Boyd optimization}.
-The regularization can be interpreted as the cost of control. Hereby the objective function
+\noindent As an example, we may
+want to control the flow through $c$, such that the saturation at $t=T$ is close to 
+a target saturation $u^*(x)$. We may introduce a Tikhonov regularization into the objective function 
+to model the control cost \cite{Boyd optimization}.
+Hereby the objective function
 \begin{equation}\begin{split}
     J &= \int_x \left|u(T,x) - u^*(x)\right|^2 \textrm{d}x + \eta \int_t\int_x  c^2(t,x) \textrm{d}x\textrm{d}t\\
       &= \int_t \int_x \left|u(t,x) - u^*(x)\right|^2 \delta_T(t) + \eta c^2(t,x) \textrm{d}x \textrm{d}t \,,
 \end{split}\end{equation}
-where $\eta>0$ models the magnitude of the regularization, and $\delta_\cdot(\cdot)$ indicates the Direc delta function.
+where $\eta>0$ models the price of control, and $\delta_\cdot(\cdot)$ is the Direc delta function.
 The optimization problem is
 \begin{equation}
     c^* = \arg\min_{c\in \mathcal{C}} J
 \end{equation}
-where $\mathcal{C}$ is the $L_2$-function Hilbert space. Notice the optimization is unconstraint.\\
+where $\mathcal{C}$ can be the $L_2$-function Hilbert space.\\
 
 \subsection{Gradient-free and gradient-based optimization}
 \label{gradfree_gradbased}
@@ -198,20 +260,33 @@ using gradient information (gradient-based optimization) and not using gradient 
 Gradient-free optimization methods require only the availability of objective function values but
 not derivative information\cite{gradfreereview}. Because of its mild requirement of the simulation, 
 gradient-free optimization methods are suitable for optimization problems based
-on \textit{black-box} simulations, and enjoy a wide range of applicability. However, when the dimension of the search space 
-$d\times m$ increases, these methods generally suffer from the \textit{curse of dimensionality}.
+on \textit{black-box}, \textit{gray-box}, and \textit{open-box} simulations, 
+thus enjoy a wide range of applicability. However, when the dimension of the design space 
+increases, these methods generally suffer from the \textit{curse of dimensionality}.
 The term \textit{curse of dimensionality} refers to problems caused by the rapid increase in the search volume associated
 with adding extra dimension in the search space\cite{dynamicprogramming}. It's not uncommon to encounter
-hundreds of dimensions in real life engineering problems, limiting the applicability of gradient-free optimization
-in these cases.
-Several strategies have been proposed to address this challenge
+tens or hundreds of dimensions in real life engineering problems, 
+limiting the applicability of gradient-free optimization
+in these cases.\\
+
+
+\noindent Many strategies can be adopted to reduce the design space dimension 
 \cite{survey of high dimensional blackbox optimization}, such as
 dimensional reduction \cite{dimensional reduction}, system decomposition \cite{decomposition},
-and variable selection \cite{variable selection}. However, these methods generally assumes
-special structures of the system to work properly \cite{survey of high dimensional blackbox 
-optimization}.\\
+and variable selection \cite{variable selection}. However, these methods generally have 
+additional assumptions or requirements to work properly \cite{survey of high dimensional blackbox 
+optimization}. For example, some reduced order models reduce the design space
+to a lower-dimensional subspace called \emph{active subspace} \cite{Han AIAA, Active subspace}.
+Optimization may be performed only in the active subspace. The active subspace is generally estimated 
+by sampling the relationship between the design variables and the objective function.  
+However, when the original design space is high-dimensional, estimating the active subspace 
+may still require an astronomical number of objective function evaluations. 
+Some reduced order models considers the discretized-in-space ODE of the flow equations,
+and reduces the dimension of the ODE using techniques such as principal 
+orthogonal decomposition \cite{Balanced truncation}. But such methods require 
+the ODE of the flow equations, which is not suitable under the gray-box assumption.\\
 
-\noindent In contrast, gradient-based optimizations use gradient information to locate the local optimum.
+\noindent In contrast, gradient-based optimizations use gradient information to locate a local optimum.
 A well-known example is the quasi Newton's methods \cite{quasiNewton}. 
 Generally gradient-based methods require less number of simulations 
 to converge than gradient-free methods, and are more efficient at finding local optimum for high-dimensional problems.
@@ -222,47 +297,58 @@ for open-box models.
 Continuous adjoint method develops the continuous adjoint equations from the continuous PDE of the simulation through 
 Lagrange multiplier; and it requires the PDE of the simulation. 
 Discrete adjoint methods applys variational methods directly to the discretized PDE; and it requires the
-discretized PDE (i.e. the numerical implementation) of the simulation. Thus, adjoint methods can not be applied
-to compute the sensitivity of a black-box simulation.
+discretized PDE (i.e. the numerical implementation) of the simulation.
 Another popular method to compute sensitivity is automatic differentiation (AD)\cite{automaticdiff}.
 AD exploits the fact that every computer program can be broken down into a sequence of elementary arithmetic operations
 and elementary functions. By applying the chain rule repeatedly to these operations, 
-derivatives of arbitrary order can be computed automatically. Because AD requires the accessibility of every elementary 
-operation during a simulation, it can not be used to compute the sensitivity of a black-box simulation either.\\
+derivatives can be computed automatically. Because adjoint methods require
+the accessibility of the PDE, and/or its implementation details, 
+it can not be used to compute the sensitivity of a gray-box simulation either.\\
 
 \noindent To sum up, gradient-free optimization methods are suitable for gray-box simulations, but suffer from the curse of
 dimensionality; gradient-based optimization methods are more efficient for high-dimensional problems, but are not suitable for 
 gray-box simulation. This dilemma motivates the development of a new optimization strategy. 
 The objective of my thesis is to design a new optimization strategy that: 1. not require $\frac{dJ}{dc}$ from the gray-box simulation, and 2. be suitable for high-dimensional 
-problems.\\
+design space.\\
 
-\subsection{Proposal outline}
-\noindent In the following chapters we will develop a new optimization strategy to address this
-problem. 
-The first step of the new strategy is to construct a surrogate of $\frac{dJ}{dc}$ 
-(gradient surrogate) using only the input and output of the
-gray-box simulation. We will develop such a surrogate in section \ref{gradient_surrogate} and section \ref{adaptive}:
-section \ref{gradient_surrogate} discusses the surrogate with fixed structure; whereas section \ref{adaptive} discusses the surrogate
-with an adaptive structure. The next step of the strategy is to optimize $J(c)$ using both the
-samplings of $J(c)$ and the samplings of the gradient surrogate.
-In section \ref{bayesian_model} we will model the objective function and the surrogate as
-realizations of stochastic processes, hereby
-unify the samplings of $J(c)$ and the gradient surrogate inside a Bayesian framework. In section \ref{bayesian_opt} we will apply an Bayesian optimization method, 
-the expected improvement algorithm \cite{jones1998},
-to the unified Bayesian modelling, and discuss its convergence. In section \ref{complete_algo} we will summarize the algorithm. A numerical example of water-oil displacement process will be shown in chapter \ref{examples} to illustrate the advantage of the new strategy.\\
-
-\newpage
-\section{Problem statement / Thesis objective / Expected contribution / Timeline}
-\subsection{Problem statement}
-
-\noindent There are many turbulence models ranging from low to high in terms of complexity and fidelity. 
+\subsection{Turbulent flow optimization}
+\noindent Turbulent flow optimization may be a great playground to motivate and demonstrate
+my proposed method.
+There are many turbulence models ranging from low to high in terms of complexity and fidelity. 
 Turbulence flow optimization generally considers objective functions of time averaged flow field. RANS model simulates a time averaged flow field directly, but the result can be inaccurate. Optimization based solely on high-fidelity simulations (e.g. LES, DNS) yields the most credible result. However, such optimization is computationally challenging. The challenge is two-folded: Firstly, these simulations generally require a tremendous amount of spatial-time discretization grid for sufficient resolution, and each objective function evaluation can be both lengthy in time and costly in computational resources. Secondly, these high-fidelity simulators generally do not have adjoint capability; so estimations of the gradient, a key to efficient optimization, is difficult to obtain especially for high dimensional design space.\\
 
-\noindent To alleviate this problem, multifidelity optimization have been applied to turbulence optimization for many years. Low fidelity models such as RANS are not only cheaper to evaluate, but also easier to implement the adjoint and evaluate the gradient. However, low-fidelity models may not be good representation of high-fidelity models, thus limiting computational savings.\\
+\noindent High-fidelity simulations such as LES are generally gray-box. 
+Firstly, LES models a chaotic dynamical systems. 
+It is not trivial to obtain the correct adjoint sensitivity \cite{chaotic Qiqi}.
+Secondly, LES employs a large number of space-time grid points, thus it can be CPU and memory
+expensive to implement the adjoint.
+Thirdly, LES may involve exotic boundary conditions, so the PDE and their implementations
+may not be easily accessible
+to engineers who are not experts in computational fluid dynamics.
+Fourthly, LES simulators can generally produce the space-time solution of all relevant flow fields
+such as velocity and pressure.\\
+
+\noindent Low-fidelity simulations such as steady RANS can be open-box. 
+Steady RANS solves a time-independent problem.
+They are generally much cheaper to solve, and easier to implement adjoint. However,
+they may have worse accuracy than the high-fidelity simulations.\\
+
+\noindent We consider optimization problems based on turbulent flow simulation. 
+When the design space is low, optimization can be performed directly with high-fidelity optimization
+\cite{Chai opt}. For higher dimensional design space, the state-of-art optimizations can
+only employ low-fidelity models such as RANS. However, there is no guarantee for
+the low-fidelity model's optimum to be close to the high-fidelity model's optimum.
+Multifidelity optimization may be applied to turbulence optimization. 
+However, low-fidelity models may not be good representation of high-fidelity models, thus limiting computational savings. \\
+
+
+\newpage
+\section{Thesis objective / Expected contribution / Timeline}
 
 \subsection{Thesis objective}
 \begin{enumerate}
-    \item Develop a method for inferring a surrogate PDE from the space time solution of an unknown PDE simulation.
+    \item Develop a method for inferring a surrogate conservation law 
+    from the space time solution of an unknown conservation law's PDE simulation.
     \item Assess how much computational saving can be achieved by using the high-fidelity model's space time solution in  a return bend numerical testcase.
 \end{enumerate}
 
@@ -278,7 +364,7 @@ Turbulence flow optimization generally considers objective functions of time ave
 
 \subsection{Timeline}
 \begin{itemize}
-    \item Apr: Proposal defense documentation and slides
+    \item Apr: Proposal defense documentation and slides. Wrap up the proof of theorem \ref{theorem: 2}.
     \item May: Defend proposal. Demonstrate the complete algorithm on a the 1D Buckley-Leverett example.
     \item Jun: Setup an LES solver for the return bend testcase in OpenFoam, write a RANS solver with adjoint for the return bend.
     \item Jul-Oct: Implement the proposed method on the return bend example.
@@ -2313,9 +2399,12 @@ our optimal design, using the LES simulation.\\
 %    with $\lambda(T) = 0$ and $\lambda\big|_{\partial \Omega} = 0$.\\
 %    Need to show: if $\|F_1-F_2\|$ and $\|q_1-q_2\|$ are bounded, then
 %    $\|\lambda_1-\lambda_2\|$ is bounded.
-    \section{Proof of theorem \ref{theorem: 2}: design sequence is dense}
-    \label{proof convergence append}
-    To be proven.
+
+
+%    \section{Proof of theorem \ref{theorem: 2}: design sequence is dense}
+%    \label{proof convergence append}
+%    To be proven.
+
 \end{appendices}
 
 \begin{thebibliography}{9}
@@ -2323,7 +2412,21 @@ our optimal design, using the LES simulation.\\
 Han Chen.
 "Blackbox stencil interpolation method for model reduction"
 Master thesis, 2012
- 
+
+\bibitem{Han AIAA} 
+Chen, Han, et al. 
+"Conditional sampling and experiment design for quantifying manufacturing error of transonic airfoil." 
+Proceedings of the 49th Aerospace Sciences Meeting. 2011.
+
+\bibitem{Active subspace}
+Constantine, Paul G., Eric Dow, and Qiqi Wang. 
+"Active subspace methods in theory and practice: Applications to kriging surfaces." 
+SIAM Journal on Scientific Computing 36.4 (2014): A1500-A1524.
+
+\bibitem{Balanced truncation}
+Willcox, Karen, and Jaime Peraire. 
+"Balanced model reduction via the proper orthogonal decomposition." 
+AIAA journal 40.11 (2002): 2323-2330.
 
 \bibitem{andrewras}
 March, Andrew, Karen Willcox, and Qiqi Wang. 
@@ -2816,6 +2919,14 @@ Journal of Turbomachinery 135.5 (2013): 051016.
 Wilcox, David C. 
 "Turbulence modeling for CFD." 
 Vol. 2. La Canada, CA: DCW industries, (1998)
+
+\bibitem{chaotic Qiqi}
+Wang, Qiqi. 
+"Forward and adjoint sensitivity computation of chaotic dynamical systems." 
+Journal of Computational Physics 235 (2013): 1-13.
+
+\bibitem{Chai opt}
+Talnikar, C., et al. "Parallel Optimization for LES." Proceedings of the Summer Program. 2014.
 
 % ------- proof of convergence -------
 \bibitem{Torn and Zilinskas}
