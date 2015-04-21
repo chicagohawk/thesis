@@ -78,7 +78,7 @@ optimal designs.
 \label{intro}
 
 \subsection{Optimization based on gray-box conservation laws}
-Optimization problems is of great interest in the engineering community. We consider minimizaing an
+Optimization problems is of great interest in the engineering community. We consider minimizing an
 objective function:
 $$
     J: \mathcal{C} \in \mathbb{R}^d\times [0,T] \rightarrow \mathbb{R}, \qquad c(t) \rightarrow J(c)\,,
@@ -95,8 +95,8 @@ satisfy a set of conservation laws
 \cite{Wilcox CFD}.
 We may optimize the wall geometry to minimize the pressure loss.
 The simulations employed for optimization are generally
-implementations of PDEs for conservation laws, and can provide accurate predictions for
-the output quantity of interest.\\
+implementations of PDEs for conservation laws, and can provide accurate predictions for 
+the objective function.\\
 
 \noindent In many cases, such simulations implement complicated PDEs and exotic solution techniques.
 Besides, the PDEs and their numerical implementations may not
@@ -113,7 +113,7 @@ the only duty of such simulations is to calculate the objective function
 \end{equation}
 where $\kappa\in \mathbb{R}^n$ are some pre-defined model properties (for example, porosity and permeability in oil reservoir simulation).
 $c$ is the design variable to be optimized. 
-We call such simulations \emph{black-box}.\\
+We call such simulations \emph{black-box} \cite{review of black-box modeling}.\\
 
 \noindent Fortunately, although it may be difficult to access the details of the PDEs, it's 
 often easy to write down
@@ -130,13 +130,13 @@ $F\in \mathbb{R}^n$ is an unknown flux term. $c$ is the space-time-dependent des
 such as water injection rates. Besides, many simulators can output the discretized $u(t,x)$ in addition to $J$.
 For each evaluation of $J$ given $\kappa$ and $c$, the discretized space-time solution is generally 
 a large file.
-We will call such simulations \textit{gray-box} \cite{review of black-box modeling}
-, in order to distinguish \textit{black-box} simulations where 
-the PDE and its implementation is unknown and the space-time solution is unavailable.
-Besides, in many cases, the simulations do not implement adjoint; this property
-is shared by gray-box and black-box simulations. We will discuss the role of adjoint in more detail
+We will call such simulations \textit{gray-box}, 
+in order to distinguish \textit{black-box} simulations where 
+the space-time solution is unavailable.
+Besides, in many cases, the simulations do not implement adjoint; we assume this property
+to be shared by gray-box and black-box simulations. We will discuss the role of adjoint in more detail
 in section \ref{gradfree_gradbased}.
-If the PDE and its implementation is known, and if adjoint is implemented,
+If the PDE and its implementation are known, and if adjoint is implemented,
 we call such simulations \emph{open-box}.
 We summarize their differences in Table \ref{tab: boxes}.\\
 \begin{center}
@@ -147,7 +147,7 @@ We summarize their differences in Table \ref{tab: boxes}.\\
                    & PDE       & Implementation & {Space (or space-time) solution} & 
                    Adjoint\\ \hline
         Black-box  & \ding{56} & \ding{56}      & \ding{56}    & \ding{56}  \\ \hline
-        Gray-box   & \ding{52} \hspace{-.4cm} \textbf{\textbackslash}
+        Gray-box   & \ding{56}
                    & \ding{56}      & \ding{52}    & \ding{56}   \\ \hline
         Open-box   & \ding{52}      & \ding{52} &          &   \ding{52}      \\ \hline
     \end{tabular}
@@ -178,9 +178,9 @@ $x\in \Omega \subseteq \mathbb{R}^{n}$ is the spatial coordinate.
 $\Omega$ may depend on the design $c$.
 $q_i$'s are the source terms that may also depend on $c$.
 $c$ is the design variable and may be space-time dependent.
-The boundary condition is known. $F_i$'s are the flux functions. 
+The boundary and initial conditions are known. $F_i$'s are the flux functions. 
 The flow variables are 
-$u = \{u_1, \cdots, u_n\}$.\\
+$u = \{u_1, \cdots, u_n\}$.
 $\mathcal{D} u = \left\{u_1, \nabla u_1 , \cdots, \nabla^{i_1} u_1; \cdots;
 u_n, \nabla u_n,\cdots, \nabla^{i_n} u_n\right\}$, where $\nabla^j$ indicates the $j$th
 order spatial derivative tensor. We assume $i_1,\cdots, i_n$, i.e. the maximum 
@@ -195,6 +195,7 @@ $\mathbf{x}_i$ indicates the spatial discretization at time $t_i$.\\
 \noindent The objective function is defined by
 \begin{equation}
     J = \int_0^T \int_\Omega j(u,c) \textrm{d}\mathbf{x}\textrm{d}t
+    \label{obj prototype}
 \end{equation}
 Notice $j$ can depend explicitly on c, while $u$ depends implicitly on $c$.
 We will consider unconstraint optimization unless otherwise specified.\\
@@ -246,8 +247,10 @@ Hereby the objective function
 \begin{equation}\begin{split}
     J &= \int_x \left|u(T,x) - u^*(x)\right|^2 \textrm{d}x + \eta \int_t\int_x  c^2(t,x) \textrm{d}x\textrm{d}t\\
       &= \int_t \int_x \left|u(t,x) - u^*(x)\right|^2 \delta_T(t) + \eta c^2(t,x) \textrm{d}x \textrm{d}t \,,
-\end{split}\end{equation}
+\end{split} \label{BL objective}
+\end{equation}
 where $\eta>0$ models the price of control, and $\delta_\cdot(\cdot)$ is the Direc delta function.
+Eqn\eqref{BL objective} can be modelled by Eqn\eqref{obj prototype}.
 The optimization problem is
 \begin{equation}
     c^* = \arg\min_{c\in \mathcal{C}} J
@@ -279,11 +282,12 @@ and variable selection \cite{variable selection}. However, these methods general
 additional assumptions or requirements to work properly \cite{survey of high dimensional blackbox 
 optimization}. For example, some reduced order models reduce the design space
 to a lower-dimensional subspace called \emph{active subspace} \cite{Han AIAA, Active subspace}.
-Optimization may be performed only in the active subspace. The active subspace is generally estimated 
+Optimization may be performed only in the active subspace. 
+For gray-box simulations, the active subspace can be estimated 
 by sampling the relationship between the design variables and the objective function.  
 However, when the original design space is high-dimensional, estimating the active subspace 
 may still require an astronomical number of objective function evaluations. 
-Some reduced order models considers the discretized-in-space ODE of the flow equations,
+Some reduced order models consider the discretized-in-space ODE of the flow equations,
 and reduces the dimension of the ODE using techniques such as proper 
 orthogonal decomposition \cite{Balanced truncation}. But such methods require 
 the ODE of the flow equations, which is not suitable under the gray-box assumption.\\
@@ -298,7 +302,7 @@ Adjoint methods are efficient methods for sensitivity analysis\cite{cont discret
 for open-box models.
 Continuous adjoint method develops the continuous adjoint equations from the continuous PDE of the simulation through 
 Lagrange multiplier; and it requires the PDE of the simulation. 
-Discrete adjoint methods applys variational methods directly to the discretized PDE; and it requires the
+Discrete adjoint method applies variational analysis directly to the discretized PDE; and it requires the
 discretized PDE (i.e. the numerical implementation) of the simulation.
 Another popular method to compute sensitivity is automatic differentiation (AD)\cite{automaticdiff}.
 AD exploits the fact that every computer program can be broken down into a sequence of elementary arithmetic operations
@@ -310,16 +314,17 @@ it can not be used to compute the sensitivity of a gray-box simulation either.\\
 \noindent To sum up, gradient-free optimization methods are suitable for gray-box simulations, but suffer from the curse of
 dimensionality; gradient-based optimization methods are more efficient for high-dimensional problems, but are not suitable for 
 gray-box simulation. This dilemma motivates the development of a new optimization strategy. 
-The objective of my thesis is to design a new optimization strategy that: 1. not require $\frac{dJ}{dc}$ from the gray-box simulation, and 2. be suitable for high-dimensional 
-design space.\\
+The new strategy should not require $\frac{dJ}{dc}$ from the gray-box simulation, 
+and should be suitable for high-dimensional design space.\\
 
 \subsection{Turbulent flow optimization}
-\noindent Turbulent flow optimization may be a great playground to motivate and demonstrate
+\noindent Turbulent flow optimization may be a great playground to demonstrate
 my proposed method.
 There are many turbulence models ranging from low to high in terms of complexity and fidelity. 
 Turbulence flow optimization generally considers objective functions of time averaged flow field. RANS model simulates a time averaged flow field directly, but the result can be inaccurate. Optimization based solely on high-fidelity simulations (e.g. LES, DNS) yields the most credible result. However, such optimization is computationally challenging. The challenge is two-folded: Firstly, these simulations generally require a tremendous amount of spatial-time discretization grid for sufficient resolution, and each objective function evaluation can be both lengthy in time and costly in computational resources. Secondly, these high-fidelity simulators generally do not have adjoint capability; so estimations of the gradient, a key to efficient optimization, is difficult to obtain especially for high dimensional design space.\\
 
-\noindent High-fidelity simulations such as LES are generally gray-box. 
+\noindent LES is a popular high-fidelity turbulent flow model. Generally LES simulations 
+can be considered gray-box. 
 Firstly, LES models a chaotic dynamical systems. 
 It is not trivial to obtain the correct adjoint sensitivity \cite{chaotic Qiqi}.
 Secondly, LES employs a large number of space-time grid points, thus it can be CPU and memory
@@ -327,11 +332,11 @@ expensive to implement the adjoint.
 Thirdly, LES may involve exotic boundary conditions, so the PDE and their implementations
 may not be easily accessible
 to engineers who are not experts in computational fluid dynamics.
-Fourthly, LES simulators can generally produce the space-time solution of all relevant flow fields
+Fourthly, LES simulators can produce the space-time solution of all relevant flow fields
 such as velocity and pressure.\\
 
 \noindent Low-fidelity simulations such as steady RANS can be open-box. 
-Steady RANS solves a time-independent problem.
+Steady RANS solves a time-independent problem for the mean flow field.
 They are generally much cheaper to solve, and easier to implement adjoint. However,
 they may have worse accuracy than the high-fidelity simulations.\\
 
@@ -345,12 +350,12 @@ However, low-fidelity models may not be good representation of high-fidelity mod
 
 
 \newpage
-\section{Thesis objective / Expected contribution / Timeline}
+\section{Thesis objective, expected contribution, proposed schedule}
 
 \subsection{Thesis objective}
 \begin{enumerate}
     \item Develop a method for inferring a surrogate conservation law 
-    from the space time solution of an unknown conservation law's PDE simulation.
+    from the space or space-time solution of an unknown conservation law's PDE simulation.
     \item Assess how much computational saving can be achieved using
     the proposed framework in a return bend optimization problem.
 \end{enumerate}
@@ -365,15 +370,24 @@ However, low-fidelity models may not be good representation of high-fidelity mod
 \end{enumerate}
 
 
-\subsection{Timeline}
+\subsection{Proposed schedule}
+\noindent \textbf{Completed:}
 \begin{itemize}
-    \item Apr: Write proposal defense slides. Wrap up the proof of theorem \ref{theorem: 2}.
-    \item May: Defend proposal. Demonstrate the complete algorithm on a the 1D Buckley-Leverett example.
-    \item Jun: Setup an LES solver for the return bend testcase in OpenFoam, write a RANS solver with adjoint for the return bend.
-    \item Jul: Hold a committee meeting for progress report.
-    \item Jul-Oct: Implement optimization on the return bend example.
-    \item Aug-Nov: Write thesis.
-    \item Jan: Defend thesis.
+    \item Course work.
+    \item Formulation of twin model and its inference.
+    \item Basis selection for time-dependent twin model.
+    \item Optimization framework using twin model.
+    \item Demonstration of twin model in a 1D example.
+\end{itemize}
+\noindent \textbf{To be complete:}
+\begin{itemize}
+    \item \textbf{2015 Apr}: Write proposal defense slides. Wrap up the proof of theorem \ref{theorem: 2}.
+    \item \textbf{2015 May}: Defend proposal. Demonstrate the complete algorithm on a the 1D Buckley-Leverett example.
+    \item \textbf{2015 Jun}: Setup an LES solver for the return bend testcase in OpenFoam, write a RANS solver with adjoint for the return bend.
+    \item \textbf{2015 Jul}: Hold a committee meeting for progress report.
+    \item \textbf{2015 Jul-Oct}: Implement optimization on the return bend example.
+    \item \textbf{2015 Aug-Nov}: Write thesis.
+    \item \textbf{2016 Jan}: Defend thesis.
 \end{itemize}
 
 \newpage
@@ -442,23 +456,18 @@ In optimization, however, design variables
 move at each iteration. A low-fidelity model may gradually lose its accuracy 
 as the design variables move away from the surrogate's applicable region.
 If one is to optimize the attack angle using a surrogate of thin airfoil theory, 
-or optimize flow speed using a low or high Reynolds number fluid model, 
+or optimize the flow speed using a low or high Reynolds number fluid model, 
 the quality of the optimum can be questionable.\\
 
-%\noindent To sum up, physics-based surrogates have two drawbacks:
-%1. They require expert knowledge for construction. 2. Their physics are fixed offline
-%and may not always give good approximations during optimization.\\
-
-\subsection{Infer physics-based surrogate by the space-time solution}
 \noindent To alleviate the drawbacks in surrogates, 
-we can \emph{correct} the surrogate's objective function
+there have been many researches to \emph{correct} the surrogate's objective function
 iteratively online to improve its accuracy. Generally, existing methods
 use $J(c)$ to correct the surrogate's $\tilde{J}(c)$.
 One method is \emph{Bayesian model calibration}
 \cite{KennedyOhagan1, andrewras}. This method models the error,
 $J(c) - \tilde{J}(c)$, as a deterministic but unknown  
 realization of a stochastic process.
-Hereby infer the error at unsampled $c$ via a Bayesian framework,
+It infers the error at unsampled $c$ via a Bayesian framework,
 using existing samples of $J(c)$ and $\tilde{J}(c)$.
 The inferred error is then added to $\tilde{J}(c)$ to provide a corrected surrogate.
 Another method is \emph{multi-fidelity trust-region method}, i.e. to bound the search step
@@ -473,15 +482,25 @@ trust-region methods, etc) can be viewed as overlaying the existing surrogate mo
 an additional \emph{functional}
 surrogate for correction. In order for the correction to improve the existing surrogate 
 to a desirable accuracy, a large number of primal model evaluations may be required.
-As we mentioned earlier, this is a common problem suffered by functional surrogate.\\
+This is a common problem suffered by functional surrogate.\\
+
+%\noindent To sum up, physics-based surrogates have two drawbacks:
+%1. They require expert knowledge for construction. 2. Their physics are fixed offline
+%and may not always give good approximations during optimization.\\
+
+\subsection{Infer physics-based surrogate by the space-time solution}
 
 \noindent The problem roots in using $J(c)$ to correct a functional surrogate. 
 For a single-objective optimization problem, each high-fidelity simulation yields
 only a single $J(c)$ to correct the surrogate. When the design space is high, the
-correction is clearly inefficient. Instead, we may infer an adaptive physics-based surrogate.
-The physics of the surrogate should be adaptive. 
-In other words, it should be able to morph its representation of the 
-underlying system's physics on-the-fly, so as to mimic the behavior of the primal model for
+correction is clearly inefficient.\\
+
+\noindent As we mentioned earlier, many research efforts can be viewed as overlaying an
+existing surrogate with an additional functional surrogate.
+Instead, we may infer an adaptive physics-based surrogate, where
+the physics of the surrogate is adaptive. 
+In other words, the physics-surrogate can morph its representation of the 
+underlying system's physics on-the-fly, so as to better represent the primal model for
 a wider range of physics settings.
 According to our gray-box assumptions in chapter \ref{intro},
 the only knowledges available in adapting the physics-based surrogate
@@ -532,13 +551,15 @@ quantities in an older time inside a \emph{domain of dependence}.
 When the timestep is small,
 the domain of dependence can be small too. For example, for scalar conservation laws 
 without exogenous control,
-we can view the conservation law for one timestep as a mapping 
-$\mathbb{R}^\omega \rightarrow \mathbb{R}$, where $\omega\in \Omega$ is the domain of
-dependence. 
+we can view solving the conservation law for one timestep $\Delta t$ as a mapping 
+$\mathbb{R}^{\omega_{\Delta t}} \rightarrow \mathbb{R}$, where $\omega_{\Delta t}\in \Omega$ 
+is the domain of dependence. 
 Loosely speaking, by applying such mapping repeatedly to all $x\in \Omega$ and $t\in[0,T]$
-(as well as applying the boundary condition), we perform 
+(in addition to the boundary and initial conditions), we perform 
 a space-time simulation of the conservation law. 
-Generally, the size of $\omega$ is be very small, 
+Generally, the size of $\omega_{\Delta t}$ is small.
+Therefore, in the discretized simulation of conservation laws,
+the number of discretized flow variables involved in $\omega_{\Delta t}$ is small too,
 making it feasible to infer the mapping.
 In my master thesis, such a property is termed \emph{stencil locality} \cite{hanmaster}.
 \\
@@ -558,20 +579,21 @@ as a sample for the mapping $\mathbb{R}^\omega \rightarrow \mathbb{R}$.
 Because the number of space-time grid points in gray-box simulations is generally large,
 we have a large number of samples to infer the mapping. 
 In the prototype PDEs Eqn\eqref{first equation} and Eqn\eqref{first equation steady},
-such a mapping is determined by the adaptive function $F_i$'s or $q_i$'s.
-Therefore, the adaptive functions can be inferred with a large number of samples,
-which makes the inference potentially accurrate.
+such a mapping is determined by the functions $F_i$'s or $q_i$'s.
+Therefore, we will have a large number of samples to infer the functions,
+making the inference potentially accurrate.
 In my master thesis,
 such a property is termed \emph{physics invariance} \cite{hanmaster}.\\
 
 \noindent Thirdly, in many optimization problems, the design space is high only because
 the design is space and/or time dependent. In order to parameterize the space-time dependent
 design, a large number of design variables will be employed. However, 
-the flow quantities only depends on the design variables in the domain of dependence.
-Therefore, even if the overall design space is high, it can still be feasible to
-infer the mapping.\\
+the flow quantities only depend on the design variables in the domain of dependence.
+Therefore, even if the overall number of design variables is high, the number of design variables
+involved in the mapping is limited, making the inference problem potentially
+immune to the design space dimensionality.\\
 
-\noindent To sum up, we propose to infer a new type of surrogate using 
+\noindent Therefore, we propose to infer a new type of surrogate using 
 the prototype equations Eqn\eqref{first equation} or
 Eqn\eqref{first equation steady} and the space-time solution of the gray-box simulation.
 The proposed surrogate is called \emph{twin model}.
@@ -590,7 +612,8 @@ its space-time solution. However, in twin model we want to infer the governing P
 to match a given space-time solution.
 Finding a suitable prototype equation can be viewed
 as an inverse problem. Inverse problems typically involve the estimation of certain variables
-based on indirect measurements of these quantities. A model that computes indirect
+based on indirect measurements of these quantities. In the theory of inverse problems,
+a model that computes the indirect
 measurement given the estimation variables is called a \emph{forward model}.
 If we parameterize the functions $F_i$'s or $q_i$'s in the prototype equations,
 we get an inverse problem of estimating such parameters.
@@ -606,16 +629,17 @@ Bayesian inference can be performed to obtain a point estimate or a probability 
 of the estimation variables \cite{inverse book}. Such methods generally keep track of an ensemble of 
 estimation variables. In our problem, this is equivalent to maintain an ensemble of
 twin models with different function $F_i$'s or $q_i$'s.
-Because each twin model is
-a PDE simulation; it can be expensive to maintain such an ensemble. 
-In addition, it is inappropriate to model the gray-box simulation's space-time solution as noisy.\\
+Because each twin model is itself
+a PDE simulator; it can be expensive to maintain such an ensemble. 
+In addition, it may be inappropriate to model the gray-box simulation's space-time solution as noisy.\\
 
 \noindent Another category is parameter identification. Parameter identification
-infers the estimation variables from the measurements, so the measurement computed 
+infers the estimation variables from a measurement, so the measurement computed 
 from the forward model and the actual measurement can match
 \cite{inverse book}.
 Loosely speaking, in twin model
 we infer the prototype equations so that a metric of the space-time solution mismatch is minimized.
+The metric is to be determined.
 Parameter identification treats the estimation variables deterministically. 
 Gradient-based optimization can be used in parameter identification to efficiently
 infer the optimal estimation variables. We will employ parameter estimation to infer
@@ -623,13 +647,15 @@ the twin model.\\
 
 \noindent Twin model is an open-box. Therefore, adjoint method 
 can be implemented for efficient parameter identification.
-Let the metric of the space-time solution mismatch be $L$,
-the flow variables solved by twin model be $\tilde{u}$,
+Let
+the flow variables solved by the twin model be $\tilde{u}$,
+the flow variables given by the gray-box simulation be $u$,
+the metric of the space-time solution mismatch be $L(u,\tilde{u})$,
 the variables parameterizing the twin model be $\xi$,
 and the forward model be $\tilde{R}(\tilde{u},\xi) = 0$.
 Adjoint method proceeds by linearizing $L$ and $\tilde{R}$,
 \begin{equation}
-    \delta L = \left(\frac{d L}{d \tilde{u}}\right)^T \delta \tilde{u}
+    \delta L = \left(\frac{\partial L}{\partial \tilde{u}}\right)^T \delta \tilde{u}
 \end{equation}
 \begin{equation}
     \frac{\partial \tilde{R}}{\partial \tilde{u}} \delta \tilde{u}
@@ -637,21 +663,22 @@ Adjoint method proceeds by linearizing $L$ and $\tilde{R}$,
 \end{equation}
 Introduce a Lagrange multiplier $\lambda$, a.k.a. \emph{adjoint state}, we have
 \begin{equation}\begin{split}
-    \delta L &= \left(\frac{d L}{d \tilde{u}}\right)^T \delta \tilde{u}
+    \delta L &= \left(\frac{\partial L}{\partial \tilde{u}}\right)^T \delta \tilde{u}
     - \lambda^T \left(\frac{\partial \tilde{R}}{\partial \tilde{u}} \delta \tilde{u}
     + \frac{\partial \tilde{R}}{\partial \xi}\delta \xi\right)\\
     &= -\left( \lambda^T \frac{\partial \tilde{R}}{\partial \xi}\right) \delta \xi
-    + \left( \left(\frac{d L}{d \tilde{u}}\right)^T 
+    + \left( \left(\frac{\partial L}{\partial \tilde{u}}\right)^T 
         - \lambda^T \frac{\partial \tilde{R}}{\partial \tilde{u}}
     \right)\delta \tilde{u}
 \end{split}\end{equation}
 Therefore, the adjoint state satisfies the \emph{adjoint equation}
 \begin{equation}
-    \left(\frac{\partial \tilde{R}}{\partial \tilde{u}}\right)^T \lambda = \frac{d L}{d\tilde{u}}\,,
+    \left(\frac{\partial \tilde{R}}{\partial \tilde{u}}\right)^T \lambda 
+    = \frac{\partial L}{\partial\tilde{u}}\,,
 \end{equation}
 and the gradient is given by
 \begin{equation}
-    \frac{dL}{d \xi} = -
+    \frac{\partial L}{\partial \xi} = -
     \left(\frac{\partial \tilde{R}}{\partial \xi}\right)^T \lambda
 \end{equation}
 
@@ -831,14 +858,12 @@ and the gradient is given by
 %detection step, i.e. twin model with fixed structure.
 %Chapter \ref{adaptive} will focus on the structure detection.\\
 
-\subsection{Formulation of twin model with fixed structure}
+\subsection{Formulation of twin model's inference}
 \label{general formulation}
 \noindent In the parameter identification,
 we need a metric for the mismatch of the space-time solutions.
 Given the same inputs (design variables, initial conditions, boundary conditions, and exogenous 
-inputs), 
-suppose the space-time solution generated by the primal model is $u$.
-An ideal twin model should provide a space-time solution $\tilde{u}$ such that
+inputs), an ideal twin model should give a space-time solution $\tilde{u}$ such that
 \begin{equation}
     \frac{1}{T}
     \int_{t=0}^T\int_{\mathbf{x}\in\Omega} w^2(t,\mathbf{x}, u,\tilde{u}) (\tilde{u} - 
@@ -850,7 +875,7 @@ where $w^2>0$ is a weight possibly depending on $t$, $\mathbf{x}$, $u$, and $\ti
 We will delay the discussion of $w$ to section \ref{future work}.
 Right now we assume $w\equiv 1$ for simplicity.
 Notice the square on $\tilde{u}-u$: it is a differentiable expression
-whose gradient is smooth.\\
+whose derivative is smooth.\\
 
 \noindent The space-time solution is discretized rather than continuous. 
 If the twin model and the 
@@ -875,9 +900,9 @@ Right now, we assume the grids are the same for simplicity.\\
 
 \noindent 
 In the following we assume $F_i$'s are unknown in the prototype equations
-(extension to problems with unknown $q_i$'s
-is straightforward), 
-the problem of constructing a twin model (with fixed structure)
+(the extension to problems with unknown $q_i$'s
+is straightforward). By parameterizing the functions using a set of basis,
+the problem of constructing a twin model
 is converted to the following problem. Notice we added a Tikhonov regularization
 to avoid ill-posedness. \\
 
@@ -952,7 +977,7 @@ For simplicity, we discuss one dimensional function $F(\tilde{u})$, $\tilde{u}\i
 \noindent Many candidate basis library may be considered, such as polynomial basis functions,
 Fourier basis functions, radial basis functions, etc.
 In this section we will focus on a set of basis functions
-from the viewpoint of multiresolution analysis and wavelet theory.
+from the viewpoint of multiresolution analysis and wavelet approximation.
 \\
 
 \noindent Wavelet approximation can be explained by Mallat's \emph{multiresolution analysis (MRA)}
@@ -1048,9 +1073,9 @@ integrated from Meyer scaling function.
 \caption{$\bar{\phi}_{0,0}$ in 1D and 2D, integrated from Meyer wavelet scaling function}
 \label{fig:Meyer Basis}
 \end{figure}
-\noindent Clearly, using Eqn\eqref{basis flux wavelet} as the basis for the flux functions
-will be problematic for high dimensional $\mathbf{x}$. We will address this problem
-in section \ref{adaptive}.\\
+%\noindent Clearly, using Eqn\eqref{basis flux wavelet} as the basis for the flux functions
+%will be problematic for high dimensional $\mathbf{x}$. We will address this problem
+%in section \ref{adaptive}.\\
 
 \noindent Although function approximation with wavelet scaling function has mathematical
 rigor, $\bar{\phi}$'s are not ideal bases for our problem. Firstly, the
@@ -1274,42 +1299,37 @@ no matter how closely the solutions match.
 As mentioned in section \ref{basis selection}, we are interested in the problem of basis
 selection. Basis selections should only be navigated to $\mathcal{E}$.\\
 
-\noindent To start with, 
-consider a primal model solving the Eqn\eqref{first equation}, and a twin model solving
+\noindent Consider a twin model solving
 \begin{equation}
     \frac{\partial\tilde{u}(t,x)}{\partial t} + \nabla \cdot 
     \tilde{F}(\mathcal{D} \tilde{u}, \kappa) 
-    = q(\tilde{u},c(t,x))\,, \qquad i=1,\cdots, n\,,
+    = q(\tilde{u},c(t,x))\,, \quad \tilde{u}(t,x) \in \mathbb{R}^n\,,
     \label{twin equation def}
 \end{equation}
-with the same initial condition, boundary condition, and controls. We define $\mathcal{E}$ by
-its complement $\bar{\mathcal{E}}$:\\
+We define the excited domain $\mathcal{E}$ by its complement $\bar{\mathcal{E}}$:\\
 \fbox{\parbox{\textwidth}{
 \begin{definition}
-    Given a primal model, its discretized solution $u(t,x)$, and
-    a twin model Eqn\eqref{twin equation def}.
-    The excited domain $\mathcal{E}$ is a domain of $\tilde{F}(\cdot)$.
+    Given a primal model, its discretized solution of $u(t,x)$, and
+    a twin model Eqn\eqref{twin equation def},
+    the excited domain $\mathcal{E}$ is a domain of $\tilde{F}(\cdot)$.
     Let the complement of $\mathcal{E}$ be $\bar{\mathcal{E}}$.
-    Consider a perturbed twin model flux $\tilde{F}_{\epsilon\delta}(\cdot) =F(\cdot)+ \epsilon
-    \delta(\cdot)$, $\epsilon\in \mathbb{R}, \delta\in L_2(\mathbb{R}^n)$.
-    The perturbed twin model gives the discretized solution $\tilde{u}_{\epsilon\delta}$.\\
+    Consider a perturbed twin model flux $\tilde{F}_{\delta}(\cdot) =F(\cdot)+ 
+    \delta(\cdot)$.
+    The perturbed twin model gives the discretized solution $\tilde{u}_{\delta}$.\\
 
     A set $e \subseteq \bar{\mathcal{E}}$ if and only if
     $$ \frac{1}{T}
-    \sum_{i=1}^{N}\sum_{k=1}^{T} \left(\tilde{u}_{\epsilon\delta, ik} - u_{ik}\right)^2 \Delta t_k
+    \sum_{i=1}^{N}\sum_{k=1}^{T} \left(\tilde{u}_{\delta, ik} - u_{ik}\right)^2 \Delta t_k
     \left| \Delta \mathbf{x}_i \right|$$
-    is independent of $\epsilon$ for
+    is a constant for
     any $\delta$ with $\textrm{support}[ \delta] = e$.
 \end{definition}
 }}\\
 
 \noindent This definition requires $F$ a prior, therefore it is not directly implementable.
-In practice, we have to replace $\tilde{F}$'s baseline $F$ with some approximation.
 The definition also requires enumeration of all possible $\delta$ to validate $\mathcal{E}$.
-In practice, we have to choose a finite set of $\delta$, for example using the basis function library
+In practice, we can only validate a finite set of $\delta$, for example the basis function library
 $\bar{\phi}$.
-However, even with a finite set of $\delta$, we should not validate $\mathcal{E}$ 
-with this definition numerically.
 \\
 
 \noindent Basis selection may be performed by regularization \cite{Lasso variable selection,
@@ -1325,18 +1345,19 @@ solution mismatch with Lasso regularization would be
     \label{Lasso mismatch}
 \end{equation}
 where $\|\cdot\|_1$ is the $L_1$ norm. 
+We will delay the discussion of Lasso regularization to later in this section. 
 Clearly, a straightforward minimization of Eqn\eqref{Lasso mismatch} requires solving the twin model 
-for $\tilde{u}$ from $[0,T]$.
+for $\tilde{u}$ in $[0,T]$.
 As mentioned in section \ref{fixed numerical example}, unless $\tilde{u}(\tau)$
 is reasonably close to $u(\tau)$, it does not make sense to keep solving the twin model for $t>\tau$.
 Therefore, we should not let $\tilde{u}$ deviates from $u$ a lot.
-We will delay the discussion of Lasso regularization
-to later in the section. Instead, we will propose a basis selection scheme for time-dependent
-twin model \emph{without solving the twin model from $[0,T]$}.\\
+We propose a basis selection scheme for time-dependent
+twin model \emph{without solving the twin model in $[0,T]$}.\\
 
 
-\noindent To restrict $\tilde{u}$ from large deviation to $u$, we propose a \emph{global-local
-error} approach for basis selection.
+\noindent 
+To restrict $\tilde{u}$ from large deviation from $u$, we propose a basis selection scheme
+that does not require solving the twin model in $[0,T]$.
 Define \emph{global error}:
 \begin{equation}
     Err_{G} = 
@@ -1547,7 +1568,8 @@ The result is shown in Fig \ref{fig:basis_selection_1} and Fig \ref{fig:basis_se
 \subsection{Future work}
 \label{future work}
 The sections above provide a framework to infer the twin model for time-dependent primal models 
-with unknown flux functions. However, there are two issues to investigate.\\
+with unknown flux functions. The framework can be extended to unknown source terms
+straightforwardly. However, there are two issues to investigate.\\
 
 \noindent Firstly, we need to extend the basis selection scheme to
 time-independent twin model.
@@ -1555,7 +1577,8 @@ Right now, the basis selection scheme in section \ref{adaptive} is only for time
 Using a global-local error approach and a finite difference approximation, the basis
 selection problem was reduced to a linear basis selection problem.
 However, this approach is not suitable for time-independent twin model.
-A feasible approach is to use Eqn\eqref{Lasso mismatch} as the metric of solution mismatch.
+A candidate approach is to use Lasso regularization instead of Tikhonov regularization
+in the metric of solution mismatch.
 Unlike time-dependent twin model,
 we may have to solve time-independent twin model to select basis.\\
 
@@ -2019,7 +2042,7 @@ on optimization performance
 due to different choices.
 \\
 
-\noindent For the third question, there are two popular approaches to treat
+\noindent For the third question, there are at least two popular approaches to treat
 the hyperparameters. One approach is to use the maximum likelihood estimate of the
 hyperparameters, in which a point estimate of the hyperparameters are made by maximizing 
 the likelihood function. Another approach is a Bayesian treatment of the hyperparameters.
@@ -2094,7 +2117,7 @@ If we can sample the exact function value,
 and if we use the expected improvement acquisition
 function, it has been shown \cite{convergenceBayesian, Bayopt converge 2} the sequence is indeed dense,
 under some mild conditions on the objective function.
-In this section, we extend the theoretical result to sample both the exact function value and the
+In this section, we extend the theoretical result to sample both the exact function value and
 noisy function gradient.\\
 \fbox{\parbox{\textwidth}{
 \begin{theorem}
@@ -2120,21 +2143,22 @@ noisy function gradient.\\
               as $|u|\rightarrow \infty$, with $\frac{1}{2}<\nu<\infty$ and $\nu^\prime = \nu-1$.
               ( $\Theta$ is the asymptotic big $\Theta$ notation. )
     \end{enumerate}
-    Let 
+    Then all functions in $\mathcal{H}$ are differentiable.\\
+
+    In addition, let 
     \begin{enumerate}
-        \item $f\in \mathcal{H}$ be the underlying objective function to maximize. 
+        \item $f\in \mathcal{H}$. 
         \item $\epsilon = \left(\epsilon_1,\cdots,\epsilon_n \right)^T\,, 
-               \; \epsilon_i\in\mathcal{H}^\prime\;, i=1,\cdots,n$ be the gradient sample noise.
-              $\epsilon_i\perp \epsilon_j\;$ for $i\neq j$.
-        \item $g$ be the noisy gradient of $f$,
-              $$
+               \; \epsilon_i\in\mathcal{H}^\prime\;, i=1,\cdots,n$. 
+              $\epsilon_i$ is independent of $\epsilon_j\;$ for $i\neq j$.
+        \item $
                   g = \epsilon + \nabla f\,.
-              $$
+              $
     \end{enumerate}
-    Let the optimization strategy generates the design sequence according to 
+    Suppose an infinitely long sequence is generated by the following strategy:
     \begin{equation*}\begin{split}
         x_{s+1} &= \arg\max_{x\in\mathcal{X}} \mathbb{E} \left[
-        \max\left( f(x) -  f(x_s^*) \right) \Big| \mathcal{S}
+        \max\left( f(x) -  f(x_s^*) ,0\right) \Big| \mathcal{S}
         \right]\\
         x_s^* &= \arg\max_{x\in\{x_1,\cdots,x_s\}}f(x)\\
         \mathcal{S} &= \Big\{ \left\{x_1,\cdots, x_s\right\} ,
@@ -2237,7 +2261,7 @@ The framework is shown in Fig \ref{fig: constraint bay opt}.
 \subsection{Problem description}
 \noindent Gas turbine blades are designed to operate at high temperatures. Because 
 materials employed for turbine components may not withstand such high termperatures,
-cooling should be applied to the blades for safety. One cooling method is
+cooling should be applied to the blades for safety. A cooling method is
 to drill tubes inside the blades to circulate the coolant air, shown in Fig\ref{fig: ubend picture}.
 The pressure to drive the coolant flow is diverted from the compressor, thus resulting
 in a penalty to the turbine efficiency.
@@ -2255,7 +2279,7 @@ the computational cost can be prohibitively expensive when the design space is h
 \begin{figure}[H]\begin{center}
     \includegraphics[height=5cm]{ubend.png}
     \caption{Example of turbine blade cooling tubes.
-    \emph{Image from: http://www.amateras-tyo.biz/eng/technologies.html}}
+    Image from: \emph{http://www.amateras-tyo.biz/eng/technologies.html}}
     \label{fig: ubend picture}
 \end{center}\end{figure}
 
@@ -2267,8 +2291,8 @@ RANS can be evaluated more cheaply; and adjoint can be implemented on RANS easil
 Because the high-fidelity simulations can provide
 space-time solutions of all relevant flow quantities (velocity, pressure, etc), we consider
 training RANS models using the time averged space-time solution of the high-fidelity simulation.
-Therefore, we will consider the gray-box high-fidelity simulations as the primal model,
-and consider the trained RANS model the twin model.
+Therefore, we will consider high-fidelity models like LES a gray-box simulation,
+and consider the trained RANS model a twin model.
 Generally, the Mach number in such flows are low ($\sim$0.05 \cite{ubend rans opt 1}),
 so we may focus on incompressible models. Besides, we will model the flow as two dimensional
 for simplicity.
@@ -2364,7 +2388,7 @@ geometry by a set of \emph{design nodes} on the inner and outter boundaries,
 and use a spline interpolation to generate the
 boundaries. The dimension of the design space will be the number of design nodes.
 We will use tens of design nodes, which yields a challenging high-dimensional optimization problem.
-There has been researches on this topic both numerically and experimentally
+There have been researches on this topic both numerically and experimentally
 \cite{ubend rans opt 1, ubend rans opt 2}. These researches can benchmark our results.
 However, instead of optimizing for the low-fidelity model's
 optimal which was the practice of most previous researches,
@@ -2376,12 +2400,12 @@ serve as the low-fidelity twin model. We will implement adjoint in the RANS mode
 an automatic differentiation toolbox.
 In the RANS model, the equation(s) of the eddy viscosity will be adaptive.
 Further investigation is required to find appropriate forms of the adaptive 
-eddy viscosity equation, and to adaptively select the basis for the eddy viscosity equation(s). 
-After that, we will train the adaptive RANS model with the high-fidelity simulation's time-averaged 
-space-time solutions. Then we can use the proposed Bayesian optimization framework 
+eddy viscosity equation(s), and to adaptively select the basis for the eddy viscosity equation(s). 
+After that, we will train the adaptive RANS model with the LES' time-averaged 
+space-time solution. Then we can use the proposed Bayesian optimization framework 
 to perform optimization. In the end, 
-we will survey existing designs in literatures, and compare them with
-our optimal design, using the LES simulation.\\
+we will survey state-of-art designs in literatures, and compare them with
+our optimal design, using LES simulation.\\
 
 
 
@@ -3033,7 +3057,8 @@ Annual review of fluid mechanics 30.1 (1998): 539-578.
 \bibitem{constraint lift}
 Li, Wu, Luc Hyuse, and Sharon Padula. 
 "Robust airfoil optimization to achieve consistent drag reduction over a Mach range."
-No. ICASE-TR-2001-22. INSTITUTE FOR COMPUTER APPLICATIONS IN SCIENCE AND ENGINEERING HAMPTON VA, 2001.
+No. ICASE-TR-2001-22. 
+Institute for computer applications in science and engineering, Hampton VA, 2001.
 
 \bibitem{ubend rans opt 1}
 Verstraete, Tom, et al. 

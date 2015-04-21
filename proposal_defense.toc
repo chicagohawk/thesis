@@ -3,15 +3,15 @@
 \contentsline {subsection}{\numberline {1.2}Prototypes for conservation laws and objective functions}{6}
 \contentsline {subsection}{\numberline {1.3}Gradient-free and gradient-based optimization}{7}
 \contentsline {subsection}{\numberline {1.4}Turbulent flow optimization}{8}
-\contentsline {section}{\numberline {2}Thesis objective / Expected contribution / Timeline}{9}
+\contentsline {section}{\numberline {2}Thesis objective, expected contribution, proposed schedule}{9}
 \contentsline {subsection}{\numberline {2.1}Thesis objective}{9}
 \contentsline {subsection}{\numberline {2.2}Expected contribution}{9}
-\contentsline {subsection}{\numberline {2.3}Timeline}{9}
+\contentsline {subsection}{\numberline {2.3}Proposed schedule}{9}
 \contentsline {section}{\numberline {3}Twin model}{10}
 \contentsline {subsection}{\numberline {3.1}Review of surrogate methods}{10}
-\contentsline {subsection}{\numberline {3.2}Infer physics-based surrogate by the space-time solution}{10}
+\contentsline {subsection}{\numberline {3.2}Infer physics-based surrogate by the space-time solution}{11}
 \contentsline {subsection}{\numberline {3.3}Twin model as an inverse problem}{12}
-\contentsline {subsection}{\numberline {3.4}Formulation of twin model with fixed structure}{13}
+\contentsline {subsection}{\numberline {3.4}Formulation of twin model's inference}{13}
 \contentsline {subsection}{\numberline {3.5}A candidate basis library for twin model}{14}
 \contentsline {subsection}{\numberline {3.6}Numerical example: twin model with fixed structure}{17}
 \contentsline {subsection}{\numberline {3.7}Twin model with adaptive structure}{20}
