@@ -25,9 +25,9 @@ $$ $$
 
 \noindent Gray-box simulations of conservation laws are
 present in many engineering applications. 
-We have some but limited
-insights of the PDEs in gray-box simulations, and can obtain the space or space-time 
-solution of the flow variables from each gray-box simulation.
+We call a conservation law simulation \emph{gray-box} if: 1. it can output the space 
+(or space-time) solution of the flow-variables, 2. the boundary (and initial) conditions
+are known.
 My thesis is interested in the optimization based on gray-box simulations,
 which is a common task in the engineering community.
 In many scenarios the gray-box simulation does not have adjoint implemented,
@@ -143,13 +143,14 @@ We summarize their differences in Table \ref{tab: boxes}.\\
 \begin{center}
     \captionof{table}{Comparison of black-box, gray-box, and open-box simulations}
     \label{tab: boxes}
-    \begin{tabular}{|c|c|c|c|c|}
+    \begin{tabular}{|c|c|c|c|c|c|}
         \hline
-                   & PDE       & Implementation & Space-time solution & Adjoint\\ \hline
-        Black-box  & \ding{56} & \ding{56}      & \ding{56}        & \ding{56}  \\ \hline
+                   & PDE       & Implementation & \scriptsize{Space (or space-time) solution} & 
+                   \scriptsize{Boundary (and initial) conditions}                   & Adjoint\\ \hline
+        Black-box  & \ding{56} & \ding{56}      & \ding{56}    & \ding{56}    & \ding{56}  \\ \hline
         Gray-box   & \ding{52} \hspace{-.4cm} \textbf{\textbackslash}
-                   & \ding{56}      & \ding{52}       & \ding{56}   \\ \hline
-        Open-box   & \ding{52}      & \ding{52} &          &    \ding{52}      \\ \hline
+                   & \ding{56}      & \ding{52} & \ding{52}      & \ding{56}   \\ \hline
+        Open-box   & \ding{52}      & \ding{52} &          & \ding{52} &  \ding{52}      \\ \hline
     \end{tabular}
 \end{center}
 
@@ -507,7 +508,7 @@ chapter \ref{intro},
 the PDEs for the conservation laws can be written as prototypes Eqn\eqref{first equation}
 or Eqn\eqref{first equation steady}.
 Therefore, the problem of adapting the physics of the physics-based surrogate reduces to the
-problem of adjusting a set of functionals $F_i$ or
+problem of adjusting a set of functions $F_i$ or
 $q_i$, for $i=1,\cdots,n$. \\
 
 %In addition, we can use the discretized space-time solution 
@@ -523,7 +524,7 @@ $q_i$, for $i=1,\cdots,n$. \\
 
 
 \noindent We \textbf{use the space-time solution} of the gray-box simulations 
-to infer these functionals.
+to infer these functions.
 There are several benefits to use the space-time solution \cite{hanmaster}.
 Firstly, in conservation law simulations, the flow quantities only depend on the flow
 quantities in an older time inside a \emph{domain of dependence}.
@@ -556,8 +557,8 @@ as a sample for the mapping $\mathbb{R}^\omega \rightarrow \mathbb{R}$.
 Because the number of space-time grid points in gray-box simulations is generally large,
 we have a large number of samples to infer the mapping. 
 In the prototype PDEs Eqn\eqref{first equation} and Eqn\eqref{first equation steady},
-such a mapping is determined by the adaptive functional $F_i$'s or $q_i$'s.
-Therefore, the adaptive functionals can be inferred with a large number of samples,
+such a mapping is determined by the adaptive function $F_i$'s or $q_i$'s.
+Therefore, the adaptive functions can be inferred with a large number of samples,
 which makes the inference potentially accurrate.
 In my master thesis,
 such a property is termed \emph{physics invariance} \cite{hanmaster}.\\
@@ -590,7 +591,7 @@ Finding a suitable prototype equation can be viewed
 as an inverse problem. Inverse problems typically involve the estimation of certain variables
 based on indirect measurements of these quantities. A model that computes indirect
 measurement given the estimation variables is called a \emph{forward model}.
-If we parameterize the unknown functionals $F_i$'s or $q_i$'s in the prototype equations,
+If we parameterize the functions $F_i$'s or $q_i$'s in the prototype equations,
 we get an inverse problem of estimating such parameters.
 \\
 
@@ -603,7 +604,7 @@ By computing the likelihood of the measurements given the estimation variables,
 Bayesian inference can be performed to obtain a point estimate or a probability description
 of the estimation variables \cite{inverse book}. Such methods generally keep track of an ensemble of 
 estimation variables. In our problem, this is equivalent to maintain an ensemble of
-twin models with different functional $F_i$'s or $q_i$'s.
+twin models with different function $F_i$'s or $q_i$'s.
 Because each twin model is
 a PDE simulation; it can be expensive to maintain such an ensemble. 
 In addition, it is inappropriate to model the gray-box simulation's space-time solution as noisy.\\
@@ -903,7 +904,7 @@ $g_{sk}$, $k=1\cdots m_s$ are the library of basis functions for $F_s$.
 $\xi$'s are the coefficients for the basis functions. $\lambda\|\xi\|^2$
 is the regularization with $\lambda>0$. $\|\cdot\|$ is the $L_2$ vector norm.
 The grids of the primal model solver and the twin model solver are assumed the same.
-Also, the primal model and the twin model use the same control, initial condition, 
+Also, the primal model and the twin model use the same design, initial condition, 
 boundary condition, and exogeneous parameters $\eta$ and $\kappa$.
 }}
 \\
@@ -934,7 +935,7 @@ $\xi$'s are the coefficients for the basis functions.
 $\lambda\|\xi\|^2$ is the regularization with $\lambda>0$.
 $\|\cdot\|$ is the $L_2$ vector norm.
 The grids of the primal model solver and the twin model solver are assumed the same.
-Also, the primal model and the twin model use the same control, 
+Also, the primal model and the twin model use the same design, 
 boundary condition, and exogeneous parameters $\kappa$.
 }}
 \\
@@ -1272,26 +1273,6 @@ no matter how closely the solutions match.
 As mentioned in section \ref{basis selection}, we are interested in the problem of basis
 selection. Basis selections should only be navigated to $\mathcal{E}$.\\
 
-\noindent Basis selection may be performed by regularization \cite{Lasso variable selection,
-Critical review of variable selection}. 
-For example, it has been shown that basis selection can be performed by having a
-Lasso regularization term in the solution mismatch. In our problem, the metric of
-solution mismatch with Lasso regularization would be
-\begin{equation}
-    \frac{1}{T}
-    \sum_{i=1}^{N}\sum_{k=1}^{T} \left(\tilde{u}_{\epsilon\delta, ik} - u_{ik}\right)^2 \Delta t_k
-    \left| \Delta \mathbf{x}_i \right|
-    + \lambda \|\xi\|_1\,,
-    \label{Lasso mismatch}
-\end{equation}
-where $\|\cdot\|_1$ is the $L_1$ norm. 
-Clearly, a straightforward minimization of Eqn\eqref{Lasso mismatch} requires solving the twin model 
-for $\tilde{u}$ from $[0,T]$.
-We will delay the discussion of Lasso regularization
-to later in the section. Instead, we will propose a basis selection scheme for time-dependent
-twin model \emph{without solving the twin model from $[0,T]$}.\\
-
-
 \noindent To start with, 
 consider a primal model solving the Eqn\eqref{first equation}, and a twin model solving
 \begin{equation}
@@ -1328,10 +1309,30 @@ In practice, we have to choose a finite set of $\delta$, for example using the b
 $\bar{\phi}$.
 However, even with a finite set of $\delta$, we should not validate $\mathcal{E}$ 
 with this definition numerically.
+\\
+
+\noindent Basis selection may be performed by regularization \cite{Lasso variable selection,
+Critical review of variable selection}. 
+For example, it has been shown that basis selection can be performed by having a
+Lasso regularization term in the solution mismatch. In our problem, the metric of
+solution mismatch with Lasso regularization would be
+\begin{equation}
+    \frac{1}{T}
+    \sum_{i=1}^{N}\sum_{k=1}^{T} \left(\tilde{u}_{\epsilon\delta, ik} - u_{ik}\right)^2 \Delta t_k
+    \left| \Delta \mathbf{x}_i \right|
+    + \lambda \|\xi\|_1\,,
+    \label{Lasso mismatch}
+\end{equation}
+where $\|\cdot\|_1$ is the $L_1$ norm. 
+Clearly, a straightforward minimization of Eqn\eqref{Lasso mismatch} requires solving the twin model 
+for $\tilde{u}$ from $[0,T]$.
 As mentioned in section \ref{fixed numerical example}, unless $\tilde{u}(\tau)$
 is reasonably close to $u(\tau)$, it does not make sense to keep solving the twin model for $t>\tau$.
 Therefore, we should not let $\tilde{u}$ deviates from $u$ a lot.
-\\
+We will delay the discussion of Lasso regularization
+to later in the section. Instead, we will propose a basis selection scheme for time-dependent
+twin model \emph{without solving the twin model from $[0,T]$}.\\
+
 
 \noindent To restrict $\tilde{u}$ from large deviation to $u$, we propose a \emph{global-local
 error} approach for basis selection.
@@ -1770,7 +1771,7 @@ then the posterior of $J(c)$ can be constructed from the joint distribution
 where $m$ is the mean of $J$, $\tilde{m}$ is the mean of $\tilde{J}$, $\mathbf{m} =
 m \mathbf{1}_{N_1}$, and $\mathbf{\tilde{m}} =\tilde{m}\mathbf{1}_{N_2}$.
 The variance-covariances, known as \emph{kernels}, have to be selected \emph{a} prior.
-However, these kernels are flexible in that they have tunable parameters known as
+However, these kernels are adaptive in that they have tunable parameters known as
 \emph{hyperparameters}, so realizations of the Gaussian processes
 can represent a wide class of functions \cite{RKHS aronszajn}. 
 The estimation of the hyperparameters and $\rho, m, \tilde{m}$ will be discussed below.
@@ -2101,6 +2102,7 @@ noisy function gradient.\\
     \begin{enumerate}
         \item $\mathcal{X} \in \mathbb{R}^n$, $\|\cdot\|$ be the $L_2$ norm defined on $\mathcal{X}$.
         \item $\mathcal{H}$ and $\mathcal{H}^\prime$ be two reproducing kernel Hilbert spaces 
+              of functions
               on $\mathcal{X}$, with kernels $K(\cdot, \cdot): \mathcal{X}\times \mathcal{X}\mapsto
                \mathbb{R}$ and $K^\prime(\cdot, \cdot): \mathcal{X}\times \mathcal{X}\mapsto
                \mathbb{R}$ respectively.
