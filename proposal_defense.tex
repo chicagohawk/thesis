@@ -28,9 +28,9 @@ present in many engineering applications.
 We call a conservation law simulation \emph{gray-box} if: 1. it can output the space 
 (or space-time) solution of the flow-variables, 2. the boundary (and initial) conditions
 are known.
-My thesis is interested in the optimization based on gray-box simulations,
+My thesis is interested in the optimization based on gray-box conservation law simulations,
 which is a common task in the engineering community.
-In many scenarios the gray-box simulation does not have adjoint implemented,
+In many scenarios such simulations do not have adjoint implemented,
 so we can not compute efficiently the gradients of 
 the optimization's objective function with respect to the design variables. 
 So conventional optimization practices generally treat the gray-box simulation
@@ -46,8 +46,8 @@ My method constructs a PDE surrogate,
 called twin model, to serve as a low-fidelity avatar of the gray-box simulation. 
 The innovation of my research is: the twin model mimics the gray-box simulation's space 
 or space-time solution, instead of mimicing just the objective function.
-The twin model first constructs a parameterized surrogate PDE using the limited insights of the 
-gray-box simulation, then tunes the parameters to match the 
+The twin model first constructs a parameterized surrogate PDE, using the 
+fact the gray-box simulation simulates a conservation law. Then it tunes the parameters to match the 
 gray-box simulation's space or space-time solution.
 Generally the space or space-time solution contains much more information 
 about the gray-box simulation than the objective function.\\
