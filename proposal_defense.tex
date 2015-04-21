@@ -25,9 +25,8 @@ $$ $$
 
 \noindent Gray-box simulations of conservation laws are
 present in many engineering applications. 
-We call a conservation law simulation \emph{gray-box} if: 1. it can output the space 
-(or space-time) solution of the flow-variables, 2. the boundary (and initial) conditions
-are known.
+We call a conservation law simulation \emph{gray-box} if it can output the space 
+(or space-time) solution of the flow-variables.
 My thesis is interested in the optimization based on gray-box conservation law simulations,
 which is a common task in the engineering community.
 In many scenarios such simulations do not have adjoint implemented,
@@ -35,7 +34,7 @@ so we can not compute efficiently the gradients of
 the optimization's objective function with respect to the design variables. 
 So conventional optimization practices generally treat the gray-box simulation
 as only a calculator for the objective function. 
-When the dimension of design variables is high,
+When the dimension of design space is high,
 such conventional practices may require large amount of simulations which can be 
 computationally prohibitive.\\
 
@@ -53,7 +52,7 @@ Generally the space or space-time solution contains much more information
 about the gray-box simulation than the objective function.\\
 
 \noindent Adjoint can be implemented in the twin model to 
-compute the gradient of the objective function with respect to design variables efficiently.
+estimate the gradient of the objective function with respect to design variables efficiently.
 Optimization can be performed in a multi-fidelity framework using the low-fidelity
 twin model and the high-fidelity gray-box simulation.
 My thesis proposes a provably convergent Bayesian optimization scheme that combines
@@ -65,7 +64,7 @@ For completeness, we extend the optimization framework to constraint optimizatio
 internal cooling problem. The gray-box
 simulation is performed by a large eddy simulation (LES). 
 The twin model is a Reynolds-averaged Navier-Stokes (RANS)
-equations model with adaptive Reynold stress modelling. We optimize a return bend
+model with an adaptive Reynold stress. We optimize a return bend
 geometry to minimize the pressure loss, and compare our result with state-of-art 
 optimal designs.
 
@@ -143,14 +142,14 @@ We summarize their differences in Table \ref{tab: boxes}.\\
 \begin{center}
     \captionof{table}{Comparison of black-box, gray-box, and open-box simulations}
     \label{tab: boxes}
-    \begin{tabular}{|c|c|c|c|c|c|}
+    \begin{tabular}{|c|c|c|c|c|}
         \hline
-                   & PDE       & Implementation & \scriptsize{Space (or space-time) solution} & 
-                   \scriptsize{Boundary (and initial) conditions}                   & Adjoint\\ \hline
-        Black-box  & \ding{56} & \ding{56}      & \ding{56}    & \ding{56}    & \ding{56}  \\ \hline
+                   & PDE       & Implementation & {Space (or space-time) solution} & 
+                   Adjoint\\ \hline
+        Black-box  & \ding{56} & \ding{56}      & \ding{56}    & \ding{56}  \\ \hline
         Gray-box   & \ding{52} \hspace{-.4cm} \textbf{\textbackslash}
-                   & \ding{56}      & \ding{52} & \ding{52}      & \ding{56}   \\ \hline
-        Open-box   & \ding{52}      & \ding{52} &          & \ding{52} &  \ding{52}      \\ \hline
+                   & \ding{56}      & \ding{52}    & \ding{56}   \\ \hline
+        Open-box   & \ding{52}      & \ding{52} &          &   \ding{52}      \\ \hline
     \end{tabular}
 \end{center}
 
@@ -352,7 +351,8 @@ However, low-fidelity models may not be good representation of high-fidelity mod
 \begin{enumerate}
     \item Develop a method for inferring a surrogate conservation law 
     from the space time solution of an unknown conservation law's PDE simulation.
-    \item Assess how much computational saving can be achieved by using the high-fidelity model's space time solution in  a return bend numerical testcase.
+    \item Assess how much computational saving can be achieved using
+    the proposed framework in a return bend optimization problem.
 \end{enumerate}
 
 \subsection{Expected contribution}
@@ -367,12 +367,13 @@ However, low-fidelity models may not be good representation of high-fidelity mod
 
 \subsection{Timeline}
 \begin{itemize}
-    \item Apr: Proposal defense documentation and slides. Wrap up the proof of theorem \ref{theorem: 2}.
+    \item Apr: Write proposal defense slides. Wrap up the proof of theorem \ref{theorem: 2}.
     \item May: Defend proposal. Demonstrate the complete algorithm on a the 1D Buckley-Leverett example.
     \item Jun: Setup an LES solver for the return bend testcase in OpenFoam, write a RANS solver with adjoint for the return bend.
+    \item Jul: Hold a committee meeting for progress report.
     \item Jul-Oct: Implement optimization on the return bend example.
-    \item Aug-Nov: Thesis writing
-    \item Jan: Defense
+    \item Aug-Nov: Write thesis.
+    \item Jan: Defend thesis.
 \end{itemize}
 
 \newpage
