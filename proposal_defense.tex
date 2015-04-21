@@ -447,7 +447,7 @@ the quality of the optimum can be questionable.\\
 %1. They require expert knowledge for construction. 2. Their physics are fixed offline
 %and may not always give good approximations during optimization.\\
 
-\subsection{Envision of twin model}
+\subsection{Infer physics-based surrogate by the space-time solution}
 \noindent To alleviate the drawbacks in surrogates, 
 we can \emph{correct} the surrogate's objective function
 iteratively online to improve its accuracy. Generally, existing methods
@@ -535,9 +535,11 @@ $\mathbb{R}^\omega \rightarrow \mathbb{R}$, where $\omega\in \Omega$ is the doma
 dependence. 
 Loosely speaking, by applying such mapping repeatedly to all $x\in \Omega$ and $t\in[0,T]$
 (as well as applying the boundary condition), we perform 
-a space-time simulation of the conservation law. Generally, the size of $\omega$ is be very small, 
-making it feasible to infer the physics.
-In my master thesis, such a property is termed \emph{stencil locality} \cite{hanmaster}.\\
+a space-time simulation of the conservation law. 
+Generally, the size of $\omega$ is be very small, 
+making it feasible to infer the mapping.
+In my master thesis, such a property is termed \emph{stencil locality} \cite{hanmaster}.
+\\
 
 \begin{figure}[H]\begin{center}
     \includegraphics[height=5cm]{locality.png}
@@ -552,7 +554,12 @@ In my master thesis, such a property is termed \emph{stencil locality} \cite{han
 \noindent Secondly, the space-time solution at almost \emph{every} space-time grid point can be viewed
 as a sample for the mapping $\mathbb{R}^\omega \rightarrow \mathbb{R}$. 
 Because the number of space-time grid points in gray-box simulations is generally large,
-we will have a large number of samples to infer the physics. In my master thesis,
+we have a large number of samples to infer the mapping. 
+In the prototype PDEs Eqn\eqref{first equation} and Eqn\eqref{first equation steady},
+such a mapping is determined by the adaptive functional $F_i$'s or $q_i$'s.
+Therefore, the adaptive functionals can be inferred with a large number of samples,
+which makes the inference potentially accurrate.
+In my master thesis,
 such a property is termed \emph{physics invariance} \cite{hanmaster}.\\
 
 \noindent Thirdly, in many optimization problems, the design space is high only because
@@ -560,7 +567,7 @@ the design is space and/or time dependent. In order to parameterize the space-ti
 design, a large number of design variables will be employed. However, 
 the flow quantities only depends on the design variables in the domain of dependence.
 Therefore, even if the overall design space is high, it can still be feasible to
-infer the physics.\\
+infer the mapping.\\
 
 \noindent To sum up, we propose to infer a new type of surrogate using 
 the prototype equations Eqn\eqref{first equation} or
@@ -1265,6 +1272,26 @@ no matter how closely the solutions match.
 As mentioned in section \ref{basis selection}, we are interested in the problem of basis
 selection. Basis selections should only be navigated to $\mathcal{E}$.\\
 
+\noindent Basis selection may be performed by regularization \cite{Lasso variable selection,
+Critical review of variable selection}. 
+For example, it has been shown that basis selection can be performed by having a
+Lasso regularization term in the solution mismatch. In our problem, the metric of
+solution mismatch with Lasso regularization would be
+\begin{equation}
+    \frac{1}{T}
+    \sum_{i=1}^{N}\sum_{k=1}^{T} \left(\tilde{u}_{\epsilon\delta, ik} - u_{ik}\right)^2 \Delta t_k
+    \left| \Delta \mathbf{x}_i \right|
+    + \lambda \|\xi\|_1\,,
+    \label{Lasso mismatch}
+\end{equation}
+where $\|\cdot\|_1$ is the $L_1$ norm. 
+Clearly, a straightforward minimization of Eqn\eqref{Lasso mismatch} requires solving the twin model 
+for $\tilde{u}$ from $[0,T]$.
+We will delay the discussion of Lasso regularization
+to later in the section. Instead, we will propose a basis selection scheme for time-dependent
+twin model \emph{without solving the twin model from $[0,T]$}.\\
+
+
 \noindent To start with, 
 consider a primal model solving the Eqn\eqref{first equation}, and a twin model solving
 \begin{equation}
@@ -1518,14 +1545,17 @@ The result is shown in Fig \ref{fig:basis_selection_1} and Fig \ref{fig:basis_se
 \subsection{Future work}
 \label{future work}
 The sections above provide a framework to infer the twin model for time-dependent primal models 
-with unknown flux functions. However, there are four issues to investigate.\\
+with unknown flux functions. However, there are two issues to investigate.\\
 
-\noindent Firstly, we need to extend the theory to more general problems.
-We should investigate twin models with unknown source term, and
-twin models with both unknown source term and flux function.
-Besides, we need to study time-independent (steady state) twin model.
-If we think of using time \emph{dependent} twin model to match a video (time-space solution),
-then we use time \emph{independent} twin model to match an image (space-only solution).\\
+\noindent Firstly, we need to extend the basis selection scheme to
+time-independent twin model.
+Right now, the basis selection scheme in section \ref{adaptive} is only for time-dependent PDEs.
+Using a global-local error approach and a finite difference approximation, the basis
+selection problem was reduced to a linear basis selection problem.
+However, this approach is not suitable for time-independent twin model.
+A feasible approach is to use Eqn\eqref{Lasso mismatch} as the metric of solution mismatch.
+Unlike time-dependent twin model,
+we may have to solve time-independent twin model to select basis.\\
 
 \noindent Secondly, we need to explore the weighting scheme used in Eqn\eqref{minimizer twin model}.
 Loosely speaking, choosing $w=1$ is equivalent to setting a uniform sample weight, where each `sample'
@@ -1554,12 +1584,6 @@ improve the twin model's accuracy for specific numerical examples.\\
 %a set of basis from an \emph{non-fixed} basis library.
 %A literature survey is required 
 %to determine the most appropriate method to use.
-
-\noindent Thirdly, we need to extend the basis selection scheme to time-independent PDEs.
-Right now, the basis selection scheme in section \ref{adaptive} is only for time-dependent PDEs.
-Using a global-local error approach and a finite difference approximation, the basis
-selection problem was reduced to a linear basis selection problem. If we want to infer
-a time-independent PDE, we need a different approach to select basis. 
 
 \newpage
 \section{Optimization with twin model}

@@ -9,23 +9,23 @@
 \contentsline {subsection}{\numberline {2.3}Timeline}{9}
 \contentsline {section}{\numberline {3}Twin model}{10}
 \contentsline {subsection}{\numberline {3.1}Review of surrogate methods}{10}
-\contentsline {subsection}{\numberline {3.2}Envision of twin model}{10}
+\contentsline {subsection}{\numberline {3.2}Infer physics-based surrogate by the space-time solution}{10}
 \contentsline {subsection}{\numberline {3.3}Twin model as an inverse problem}{12}
 \contentsline {subsection}{\numberline {3.4}Formulation of twin model with fixed structure}{13}
 \contentsline {subsection}{\numberline {3.5}A candidate basis library for twin model}{14}
 \contentsline {subsection}{\numberline {3.6}Numerical example: twin model with fixed structure}{17}
 \contentsline {subsection}{\numberline {3.7}Twin model with adaptive structure}{20}
 \contentsline {subsection}{\numberline {3.8}Future work}{24}
-\contentsline {section}{\numberline {4}Optimization with twin model}{26}
-\contentsline {subsection}{\numberline {4.1}Motivation of the Bayesian approach}{26}
-\contentsline {subsection}{\numberline {4.2}Bayesian modeling of the primal and twin models}{29}
-\contentsline {subsection}{\numberline {4.3}Optimization using the posterior of the objective function}{30}
-\contentsline {subsection}{\numberline {4.4}Discussion of the convergence property}{33}
-\contentsline {subsection}{\numberline {4.5}Optimization constraints}{34}
-\contentsline {section}{\numberline {5}Application to a turbulent flow optimization}{37}
-\contentsline {subsection}{\numberline {5.1}Problem description}{37}
-\contentsline {subsection}{\numberline {5.2}Review of incompressible RANS models}{37}
-\contentsline {subsection}{\numberline {5.3}Future work}{38}
-\contentsline {section}{\numberline {6}Appendices}{40}
-\contentsline {subsection}{\numberline {6.1}Proof of theorem 1\hbox {}: global-local error}{40}
-\contentsline {section}{\numberline {7}References}{42}
+\contentsline {section}{\numberline {4}Optimization with twin model}{25}
+\contentsline {subsection}{\numberline {4.1}Motivation of the Bayesian approach}{25}
+\contentsline {subsection}{\numberline {4.2}Bayesian modeling of the primal and twin models}{28}
+\contentsline {subsection}{\numberline {4.3}Optimization using the posterior of the objective function}{29}
+\contentsline {subsection}{\numberline {4.4}Discussion of the convergence property}{32}
+\contentsline {subsection}{\numberline {4.5}Optimization constraints}{33}
+\contentsline {section}{\numberline {5}Application to a turbulent flow optimization}{36}
+\contentsline {subsection}{\numberline {5.1}Problem description}{36}
+\contentsline {subsection}{\numberline {5.2}Review of incompressible RANS models}{36}
+\contentsline {subsection}{\numberline {5.3}Future work}{37}
+\contentsline {section}{\numberline {6}Appendices}{39}
+\contentsline {subsection}{\numberline {6.1}Proof of theorem 1\hbox {}: global-local error}{39}
+\contentsline {section}{\numberline {7}References}{41}

@@ -64,7 +64,7 @@
 \newlabel{gradient_surrogate}{{3}{10}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Review of surrogate methods}{10}}
 \newlabel{review surrogate methods}{{3.1}{10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Envision of twin model}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Infer physics-based surrogate by the space-time solution}{10}}
 \citation{Hamilton Fluid Dynamics}
 \citation{NP hard}
 \citation{hanmaster}
@@ -82,8 +82,8 @@
 \newlabel{general formulation}{{3.4}{13}}
 \newlabel{minimizer twin model}{{16}{13}}
 \newlabel{minimizer twin model discrete}{{17}{13}}
-\newlabel{minimizer twin model discrete mapping}{{18}{13}}
 \citation{wavelet mallat}
+\newlabel{minimizer twin model discrete mapping}{{18}{14}}
 \newlabel{objective twin model}{{19}{14}}
 \newlabel{first equation 2}{{20}{14}}
 \newlabel{objective twin model steady}{{21}{14}}
@@ -97,7 +97,7 @@
 \citation{Dijkema book}
 \newlabel{scaling projection}{{24}{15}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Meyer wavelet scaling function and its spectrum\relax }}{15}}
-\newlabel{fig:Meyer}{{\caption@xref {fig:Meyer}{ on input line 983}}{15}}
+\newlabel{fig:Meyer}{{\caption@xref {fig:Meyer}{ on input line 990}}{15}}
 \newlabel{basis flux wavelet}{{27}{16}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces $\mathaccentV {bar}016{\phi }_{0,0}$ in 1D and 2D, integrated from Meyer wavelet scaling function\relax }}{16}}
 \newlabel{fig:Meyer Basis}{{3}{16}}
@@ -127,34 +127,37 @@
 \newlabel{fig:sol compare}{{7}{19}}
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Compare $F(u)$ and $\frac  {dF}{du}$ with $\mathaccentV {tilde}07E{F}(u)$ and $\frac  {d\mathaccentV {tilde}07E{F}}{du}$ with higher flux resolution\relax }}{19}}
 \newlabel{fig:flux compare 30}{{8}{19}}
+\citation{Lasso variable selection}
+\citation{Critical review of variable selection}
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Compare $u(t,x)$ with $\mathaccentV {tilde}07E{u}(t,x)$ with higher flux resolution\relax }}{20}}
 \newlabel{fig:sol compare 30}{{9}{20}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Twin model with adaptive structure}{20}}
 \newlabel{adaptive}{{3.7}{20}}
-\newlabel{twin equation def}{{36}{20}}
-\newlabel{global error}{{37}{21}}
-\newlabel{local error}{{38}{21}}
+\newlabel{Lasso mismatch}{{36}{20}}
+\newlabel{twin equation def}{{37}{20}}
+\newlabel{global error}{{38}{21}}
+\newlabel{local error}{{39}{21}}
 \@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces illustration of twin model with restart.\relax }}{21}}
 \newlabel{fig:tmodelrestart}{{10}{21}}
-\newlabel{theorem: 1}{{1}{21}}
 \citation{NARMAXbook}
 \citation{Lasso variable selection}
 \citation{Billing feature selection}
 \citation{review dimensional reduction}
 \citation{PCA review}
 \citation{NARMAXbook}
+\newlabel{theorem: 1}{{1}{22}}
+\newlabel{linear eqn}{{44}{22}}
+\newlabel{linear selection}{{47}{22}}
 \citation{Critical review of variable selection}
 \citation{stepwise variable selection}
 \citation{Critical review of variable selection}
 \citation{Billing feature selection}
 \citation{Critical review of variable selection}
-\newlabel{linear eqn}{{43}{22}}
-\newlabel{linear selection}{{46}{22}}
-\newlabel{selected variable model}{{49}{22}}
 \citation{AIC}
 \citation{BIC}
 \citation{Lasso variable selection}
 \citation{sklearn}
+\newlabel{selected variable model}{{50}{23}}
 \@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Basis selection using Lasso. The figure on the right side shows the primal model's solution $u(t,x)$. The figure on the left side shows all candidate bases. The selected bases are colored red. Notice how the selected bases correspond to the colorbar of the primal model solution.\relax }}{24}}
 \newlabel{fig:basis_selection_1}{{11}{24}}
 \@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Basis selection with a different $u(t,x)$. Notice how selected bases depend on the primal model solution.\relax }}{24}}
@@ -168,9 +171,9 @@
 \citation{MFO: two stage}
 \citation{Pattern Search Convergence}
 \citation{Pattern Search Convergence MFO}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Optimization with twin model}{26}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Motivation of the Bayesian approach}{26}}
-\newlabel{general opt}{{52}{26}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Optimization with twin model}{25}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Motivation of the Bayesian approach}{25}}
+\newlabel{general opt}{{53}{25}}
 \citation{inexactgradient1}
 \citation{jones1998}
 \citation{trustregionconn}
@@ -193,54 +196,54 @@
 \citation{RKHS aronszajn}
 \citation{practicalBayesianopt}
 \citation{cokriging}
-\newlabel{ohagan_assumption}{{53}{27}}
-\newlabel{joint distribution}{{55}{27}}
+\newlabel{ohagan_assumption}{{54}{26}}
+\newlabel{joint distribution}{{56}{26}}
 \citation{adjoint gradient cokriging without MLE}
 \citation{gradient kriging surrogate}
 \citation{practicalBayesianopt}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Train the twin model at $c=0$, the resultant twin model gives good approximation for the $\frac  {dJ}{dc}$.\relax }}{29}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Bayesian modeling of the primal and twin models}{29}}
-\newlabel{bayesian_model}{{4.2}{29}}
-\newlabel{base Bayes model}{{57}{29}}
-\newlabel{funkernel}{{62}{29}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Train the twin model at $c=0$, the resultant twin model gives good approximation for the $\frac  {dJ}{dc}$.\relax }}{28}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Bayesian modeling of the primal and twin models}{28}}
+\newlabel{bayesian_model}{{4.2}{28}}
+\newlabel{base Bayes model}{{58}{28}}
+\newlabel{funkernel}{{63}{28}}
 \citation{practicalBayesianopt}
 \citation{practicalBayesianopt}
-\newlabel{noise kernel}{{65}{30}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Optimization using the posterior of the objective function}{30}}
-\newlabel{bayesian_opt}{{4.3}{30}}
-\newlabel{EI form}{{69}{30}}
+\newlabel{noise kernel}{{66}{29}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Optimization using the posterior of the objective function}{29}}
+\newlabel{bayesian_opt}{{4.3}{29}}
+\newlabel{EI form}{{70}{29}}
 \citation{MCMC hyperparameters}
 \citation{practicalBayesianopt}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces The flowchart of Bayesian optimization with twin model.\relax }}{32}}
-\newlabel{fig: Bopt flow}{{14}{32}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces The flowchart of Bayesian optimization with twin model.\relax }}{31}}
+\newlabel{fig: Bopt flow}{{14}{31}}
 \citation{Torn and Zilinskas}
 \citation{convergenceBayesian}
 \citation{Bayopt converge 2}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Minimizing $J(x) = \DOTSB \sum@ \slimits@ _{i=1}^{\textrm  {dim}}x_i^2$ with variable $\textrm  {dim}$. The y-axis is the best / smallest $J$ after 10 function evaluations, in log 10 scale. The blue line is obtained from Bayesian optimization with no gradient information. The green line is obtained from Bayesian optimization with a noisy gradient, by setting $\sigma ^2 = \sigma ^2_\epsilon $, see Eqn\textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 62\hbox {}\unskip \@@italiccorr )}} and Eqn\textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 65\hbox {}\unskip \@@italiccorr )}}. The red line is obtained from Bayesian optimization with a less noisy gradient, by setting $0.1 \sigma ^2 = \sigma ^2_\epsilon $ We use Monte Carlo to randomly select some initial guesses for $x$. Each point on these lines represents the averaged $J_{10}$ using a random set of initial guesses.\relax }}{33}}
-\newlabel{fig: dim and J}{{15}{33}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Discussion of the convergence property}{33}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Minimizing $J(x) = \DOTSB \sum@ \slimits@ _{i=1}^{\textrm  {dim}}x_i^2$ with variable $\textrm  {dim}$. The y-axis is the best / smallest $J$ after 10 function evaluations, in log 10 scale. The blue line is obtained from Bayesian optimization with no gradient information. The green line is obtained from Bayesian optimization with a noisy gradient, by setting $\sigma ^2 = \sigma ^2_\epsilon $, see Eqn\textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 63\hbox {}\unskip \@@italiccorr )}} and Eqn\textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces 66\hbox {}\unskip \@@italiccorr )}}. The red line is obtained from Bayesian optimization with a less noisy gradient, by setting $0.1 \sigma ^2 = \sigma ^2_\epsilon $ We use Monte Carlo to randomly select some initial guesses for $x$. Each point on these lines represents the averaged $J_{10}$ using a random set of initial guesses.\relax }}{32}}
+\newlabel{fig: dim and J}{{15}{32}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Discussion of the convergence property}{32}}
 \citation{ubend rans opt 1}
 \citation{ubend rans opt 2}
-\newlabel{theorem: 2}{{3}{34}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Optimization constraints}{34}}
-\newlabel{constraints}{{4.5}{34}}
+\newlabel{theorem: 2}{{3}{33}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Optimization constraints}{33}}
+\newlabel{constraints}{{4.5}{33}}
 \citation{nlopt}
 \citation{constraint Bayesian Opt}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Example of a constraint of the feasible geometry, The brighter region indicates feasible region of the return bend geometry. The wireframe indicates a feasible design.\relax }}{35}}
-\newlabel{fig: simple constraint}{{16}{35}}
-\newlabel{EI form constraint}{{72}{35}}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces The flowchart of constraint Bayesian optimization with twin model.\relax }}{36}}
-\newlabel{fig: constraint bay opt}{{17}{36}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Example of a constraint of the feasible geometry, The brighter region indicates feasible region of the return bend geometry. The wireframe indicates a feasible design.\relax }}{34}}
+\newlabel{fig: simple constraint}{{16}{34}}
+\newlabel{EI form constraint}{{73}{34}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces The flowchart of constraint Bayesian optimization with twin model.\relax }}{35}}
+\newlabel{fig: constraint bay opt}{{17}{35}}
 \citation{ubend rans opt 1}
 \citation{ubend rans opt 2}
 \citation{ubend rans opt 2}
 \citation{ubend rans opt 1}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Application to a turbulent flow optimization}{37}}
-\newlabel{examples}{{5}{37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Problem description}{37}}
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Example of turbine blade cooling tubes. \emph  {Image from: http://www.amateras-tyo.biz/eng/technologies.html}\relax }}{37}}
-\newlabel{fig: ubend picture}{{18}{37}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Review of incompressible RANS models}{37}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Application to a turbulent flow optimization}{36}}
+\newlabel{examples}{{5}{36}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Problem description}{36}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Example of turbine blade cooling tubes. \emph  {Image from: http://www.amateras-tyo.biz/eng/technologies.html}\relax }}{36}}
+\newlabel{fig: ubend picture}{{18}{36}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Review of incompressible RANS models}{36}}
 \citation{Wilcox CFD}
 \citation{Wilcox CFD}
 \citation{Wilcox CFD}
@@ -248,19 +251,19 @@
 \citation{Wilcox CFD}
 \citation{ubend rans opt 1}
 \citation{ubend rans opt 2}
-\newlabel{Prandtl mixing length}{{76}{38}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Future work}{38}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Appendices}{40}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Proof of theorem 1\hbox {}: global-local error}{40}}
-\newlabel{appendix 1}{{6.1}{40}}
-\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Trajectories of the primal model and the twin model. $H$ and $G$ are their timestep-wise mapping functions.\relax }}{40}}
-\newlabel{fig:sketch}{{19}{40}}
-\newlabel{global error}{{83}{40}}
-\newlabel{local error}{{84}{40}}
-\newlabel{expansion global error}{{86}{40}}
-\newlabel{error diff}{{87}{40}}
-\newlabel{error diff}{{90}{41}}
-\newlabel{error diff 2}{{91}{41}}
+\newlabel{Prandtl mixing length}{{77}{37}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Future work}{37}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Appendices}{39}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Proof of theorem 1\hbox {}: global-local error}{39}}
+\newlabel{appendix 1}{{6.1}{39}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Trajectories of the primal model and the twin model. $H$ and $G$ are their timestep-wise mapping functions.\relax }}{39}}
+\newlabel{fig:sketch}{{19}{39}}
+\newlabel{global error}{{84}{39}}
+\newlabel{local error}{{85}{39}}
+\newlabel{expansion global error}{{87}{39}}
+\newlabel{error diff}{{88}{39}}
+\newlabel{error diff}{{91}{40}}
+\newlabel{error diff 2}{{92}{40}}
 \bibcite{hanmaster}{1}
 \bibcite{Han AIAA}{2}
 \bibcite{Active subspace}{3}
@@ -284,7 +287,7 @@
 \bibcite{SarmaEKF}{21}
 \bibcite{gradfreereview}{22}
 \bibcite{dynamicprogramming}{23}
-\@writefile{toc}{\contentsline {section}{\numberline {7}References}{42}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}References}{41}}
 \bibcite{quasiNewton}{24}
 \bibcite{adjoint}{25}
 \bibcite{cont discretize adjoint}{26}
