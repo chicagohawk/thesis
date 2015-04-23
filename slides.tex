@@ -1,0 +1,485 @@
+\documentclass{beamer}
+\usepackage{geometry}
+\usepackage{movie15}
+\usepackage{hyperref}
+\usepackage{subfigure}
+\usepackage[latin1]{inputenc}
+\usepackage{tikz, movie15}
+\usetikzlibrary{positioning,shadows,shapes,arrows}
+\mode<presentation>
+{
+    \usetheme{CambridgeUS}
+    \usecolortheme{default}
+    \setbeamercovered{transparent}
+}
+
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{fancybox}
+\usepackage{graphics}
+\usepackage{pgf, pgfarrows, pgfnodes}
+\usepackage{algorithmic, algorithm}
+
+\usepackage[authoryear,comma]{natbib}
+\bibliographystyle{apalike}
+\def\newblock{}
+\bibpunct{[}{]}{,}{}{}{;}
+
+
+\definecolor{OliveGreen}{rgb}{0.6,0.6,0}
+\definecolor{Purple}{rgb}{0.6,0,0.6}
+\newcommand{\putat}[3]{\begin{picture}(0,0)(0,0)\put(#1,#2){#3}\end{picture}}
+
+
+\setbeamertemplate{footline}{
+\leavevmode
+\hbox{
+\begin{beamercolorbox}[wd=.55\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}
+    \usebeamerfont{title in head/foot}\tiny{\insertshorttitle}\hspace*{-2ex}
+\end{beamercolorbox}
+\begin{beamercolorbox}[wd=0.45\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}
+    \usebeamerfont{date in head/foot}
+    \insertframenumber{} {/ \inserttotalframenumber}\hspace*{2ex}
+\end{beamercolorbox}
+}
+}
+
+
+\title{Efficient Optimization with Gray-box PDE Simulations}
+\setbeamertemplate{navigation symbols}{}
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{What is gray-box PDE simulation?}
+    Consider an example PDE simulating 1-D water-oil two phase flow:
+    \begin{columns}
+        \column{.5\textwidth}
+        \begin{equation*}
+            \frac{\partial u}{\partial t}+\frac{\partial F(u)}{\partial x}
+            = 0\,,
+        \end{equation*}
+        with known boundary and initial conditions.
+        \column{.5\textwidth}
+        \centering
+        \includegraphics[width=5cm]{buckley_flux.png}
+    \end{columns}
+    \normalsize
+    \begin{equation*}
+        \textrm{Gray-box}\left\{
+            \begin{split}
+            &\textrm{PDE (for example, F(u) can be unkown.)}\\
+            &\textrm{Numerical implementation}
+            \end{split}
+        \right.
+    \end{equation*}
+\end{frame}
+
+\begin{frame}
+    \frametitle{PDE simulations can be gray-box}
+    In many cases the general form of the PDE is known, but the specific
+    model choices and/or numerical scheme choices are not accessible (for example,
+    for many commercial and legacy codes).
+    \begin{center}
+        \includegraphics[width=6cm]{compare.png}\\
+        \scriptsize{[Akand W. Islam et al., A review on SPE's comparative solution projects, 2013]}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Research objective}
+    Design an efficient method for the optimization of gray-box simulations.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Optimization based on gray-box simulation requires
+        non-intrusive methods}
+        \begin{itemize}
+        \item My research considers optimization based on gray-box simulations.
+        \item A gray-box PDE simulation maps a set of input to a space-time solution.
+              An objective function is then computed from the solution.
+        \begin{center}
+        \includegraphics[width=9cm]{flowc0.png}
+        \end{center}
+        \item Optimization based on gray-box simulators requires non-intrusive
+        methods.
+        \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conventional non-intrusive methods can be expensive}
+    Gray-box simulations can not provide the \textcolor{red}{objective function's gradient}.
+    \begin{itemize}
+            \item In conventional non-intrusive methods, each simulation
+                  provides only one sample of the objective function value.
+            \item When the number of
+                  inputs increases, more simulations are required (known as the curse of dimensionality).
+    \end{itemize}
+    \vspace{0.2cm}
+    The challenges above motivates my research.
+\end{frame}
+
+\begin{frame}
+    \frametitle{A different view of gray-box simulation}
+        Conventional non-intrusive optimization methods view each simulation
+        as a map from the input to the objective function, discarding
+        the information  contained in the space-time solution.
+        \begin{center}
+            \includegraphics[width=9cm]{nonintru_a.png}
+        \end{center}
+        Instead, our method views the simulation as a map from the input to the
+        space-time solution.
+        \begin{center}
+            \includegraphics[width=9cm]{non_intru_b.png}
+        \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{How to use the space-time solution?}
+        We propose a PDE-based surrogate simulator.\\
+        The PDE governing surrogate simulator is parameterized. Given 
+        the same input, the surrogate and the gray-box simulator both generate
+        a space-time solution.
+        \begin{center}
+            \includegraphics[width=9cm]{twin_model_a.png}
+        \end{center}
+        We call this surrogate simulator a \emph{twin model}.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Twin model calibrates itself to minimize the mismatch of solutions}
+    \begin{center}
+        \includegraphics[width=8cm]{twin_model_match.png}
+    \end{center}
+    Given the same inputs, twin model calibrate its PDE's parameterization to
+    minimize the mismatch between the space-time solutions. 
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Example}\small
+    \begin{exampleblock}{Gray-box model}
+            $$
+            \frac{\partial u}{\partial t} + \frac{\partial}{\partial x} F (u) = J(t,x)
+            $$
+        with known initial and boundary conditions.\\
+        $u=u(t,x)$ is water
+        saturation. $J(t,x)$ is the control (water injection).
+        $J$ determines the injection rate.
+        $F(u)$ is an unkown flux function.
+        \end{exampleblock}
+        \begin{exampleblock}{Twin model}
+            $$
+            \frac{\partial \hat{u}}{\partial t} + \frac{\partial}{\partial
+            x}\left( \sum_i c_i \phi_i(\hat{u}) \right) = J(t,x)
+            $$
+            with the same initial and boundary conditions.
+            $\phi_i(u)$'s are the basis functions for parameterization.
+            $c_i$'s are the parameterization coefficients.
+        \end{exampleblock}
+        Both models share the same objective function $L(u)$.\\
+        $c_i$'s are calibrated to minimize $|u-\hat{u}|$ (with appropriate norm). 
+\end{frame}
+
+\begin{frame}
+    \frametitle{What is the advantage of twin model?}
+    \begin{exampleblock}{Easier target to infer}
+        \begin{itemize}
+        \item Conventional non-intrusive methods infer the relations
+              $J(t,x) \rightarrow L(u)$.
+        \item Twin model infers the unkown functions inside the PDE, i.e. 
+              the function form of $F(u)$, or $c_i$'s.
+        \end{itemize}
+    \end{exampleblock}
+
+    \begin{exampleblock}{More training information}
+        \begin{itemize}
+            \item Conventional non-intrusive methods treat each gray-box simulation
+                  as just one sample of $L$.
+            \item In the twin model approach, the whole space-time solution $u(t,x)$ from the gray-box
+                  simulation are used for inference purpose.
+        \end{itemize}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Numerical test: problem setup}
+    \centering
+    $$
+        \frac{\partial u}{\partial t}+\frac{\partial {F}(u)}{\partial x} = J\;,
+        \qquad
+        \frac{\partial \hat{u}}{\partial t}+\frac{\partial \hat{F}(\hat{u})}{\partial x} = J
+    $$
+    The control $J$ is a constant independent of $t$ and $x$. 
+    $F(u)$ is an unknown 6-order Chebyshev polynomial. Neumann boundary condition is used.
+    The two simulations use the same initial condition.
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{figure}
+            \includegraphics[width=4.5cm]{sol1.png}
+        \end{figure}
+        \vspace{-0.2cm}
+        \centering \scriptsize{$u(t,x)$ at $J=0$.}
+        \column{0.5\textwidth}
+        \begin{figure}
+            \includegraphics[width=4.5cm]{fluxbasis.png}\\
+        \end{figure}
+        \vspace{-0.2cm}
+        \centering \scriptsize{Basis $\phi(x)$.}
+     \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Numerical test: infer the twin model}
+    We only sample the gray-box simulation at $J=0$, and use its $u(t,x)$ to infer $\hat{F}$ by
+    $$
+        \min_{\hat{F}} \int_x \int_t \left| u - \hat{u} \right|^2 dt dt\qquad
+    \footnote{\scriptsize Because the solutions $u$ and $\hat{u}$ are discretized, in reality
+    we minimize $\sum_{i,j} \left| u(t_i,x_j) - \hat{u}(t_i,x_j) \right|^2$. For simplicity 
+    we assume the twin model and the gray-box simulation share the same space-time grid.}$$
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{figure}
+            \includegraphics[width=4.5cm]{fitflux.png}
+        \end{figure}
+        \column{0.5\textwidth}
+        \begin{figure}
+            \includegraphics[width=4.5cm]{solerr.png}
+        \end{figure}
+     \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Numerical test: using twin model for different control}
+    The twin model is only trained for $J=0$. But if $F(\cdot)$ is inferred accurately, 
+    the twin model can approximate the gray-box simulation at different $J$.
+    Also the twin model can provide an approximate gradient for the gray-box simulation.
+    \begin{center}
+        \includegraphics[width=6.5cm]{single_c.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{A vanilla optimization using twin model}
+    \small While not converged:
+    \begin{center}
+        \includegraphics[width=10cm]{opt_vanilla.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The vanilla approach is not ideal}
+    The drawbacks of the vanilla approach are:
+    \begin{itemize}
+        \item When the twin model is updated to its latest $x$, all previous twin model training and its gradients are discarded.
+        \item No guarantee for convergence.
+    \end{itemize}
+    \vspace{0.3cm}
+    An ideal approach should be able to
+    \begin{itemize}
+        \item Consider all previously trained twin models and their gradients.
+        \item Gradually improve the overal approximation quality when the number of twin model fittings increases.
+        \item Judge the quality of the twin model. When the twin model is good, our optimization shall be close to 
+              a gradient driven optimization; otherwise, it shall be close to a gradient free optimization.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Gaussian processes modeling}
+    \begin{enumerate}
+        \item We model the gray-box simulation's mapping from $J$ to $L$ as a realization of a Gaussian process
+        $\mathcal{N}(\bar{L}, cov_1(\cdot,\cdot))$, where $\bar{L}$ is the existing samples' average.\\
+        \item The gradient of twin model is modeled as
+        $$
+            g(J) = \nabla L(J) + \epsilon(J)\,,
+        $$
+        where $\epsilon(J)$ is an unkown realization of a Gaussian process $\mathcal{N}(0, cov_2(\cdot,\cdot))$.\\
+        \vspace{0.2cm}
+    \end{enumerate}
+    Assume
+    $$
+        cov(\nabla L, \epsilon) = 0\;,\;\; cov(L, \epsilon) = 0
+    $$
+    For simplicity, we also assume the covariances have square-exponential kernels.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Joint distribution of gray-box simulation and twin model's gradient}
+    \begin{equation*}
+    \begin{pmatrix}
+        L\\ g
+    \end{pmatrix}
+    =
+    \mathcal{N}\left(
+    \begin{pmatrix}
+        \bar{L}\\
+        0
+    \end{pmatrix} ,
+    \Sigma = 
+    \begin{pmatrix}
+        A_{11} & A_{12}\\
+        A_{12}^T & A_{22}+E
+    \end{pmatrix}
+    \right)\,,
+\end{equation*}
+where \scriptsize
+\begin{equation*}\begin{split}
+A_{11}: \quad cov_1(L(J_1), L(J_2)) &= \xi_1^2 \exp\left\{ -\frac{(J_1-J_2)^2}{2\sigma_1^2} \right\}\\
+A_{12}: \quad cov(L(J_1), g(J_2)) &= \frac{\xi_1^2}{\sigma_1^2} (J_1-J_2) \exp\left\{
+    -\frac{(J_1-J_2)^2}{2\sigma_1^2}
+    \right\}\\
+A_{22}: \quad cov(\nabla L(J_1), \nabla L(J_2)) &= \frac{\xi_1^2}{\sigma_1^2}\exp\left\{
+    -\frac{(J_1-J_2)^2}{2\sigma_1^2} \right\} \left(  \boldsymbol{I} -\frac{1}{\sigma_1^2}(J_1-J_2)(J_1-J_2)^T\right)\\
+E: \quad cov_2(\epsilon(J_1), \epsilon(J_2)) &= \xi_2^2 \boldsymbol{I}\exp\left\{-\frac{(J_1-J_2)^2}{2\sigma_2^2}\right\}
+\end{split}\end{equation*}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Posterior distribution of $L(J)$}
+    \begin{exampleblock}{Dataset}
+        \begin{enumerate}
+            \item The gray-box simulations on sample points $D=\left\{J_1, \cdots, J_m\right\}$.\\
+            \item A twin model is trained on $\forall J_i\in D$. We also compute
+                  an approximate gradient $g(J_i)$ on $\forall J_i\in D$. 
+        \end{enumerate}
+    \end{exampleblock}
+    We can obtain
+    $$p[L(J^\prime)|L_D, g_D]  \quad \textrm{for}\; \forall J^\prime $$
+\end{frame}
+
+\begin{frame}
+    \frametitle{Have an approximate gradient can improve the posterior estimate}
+    Consider an example: $L(J) = J^3$.
+    \scriptsize
+    \begin{columns}
+        \column{.5\textwidth}
+        \centering
+        \includegraphics[width=5cm]{f_with_no_grad_info.png}\\
+        Posterior with no gradient information.
+        \column{.5\textwidth}
+        \centering
+        \includegraphics[width=5cm]{f_with_grad_info.png}\\
+        Posterior with noisy gradient information.
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Bayesian optimization}\small
+    Bayesian optimization is a way to dictate the next trial point $J_i$ from the
+    posterior of $L(J)$.
+    \begin{exampleblock}{Acquisition function}
+        \begin{itemize}
+            \item Define an \emph{acquisition function} $\alpha: p(J) \rightarrow \mathbb{R}$,
+                  which maps the posterior distribution to a scalar.
+            \item One popular choice is the LCB (lower-confidence bound) acquisition function.
+            $$
+                \alpha(J)= \mu(J) - \kappa \sigma(J)
+            $$
+            where $\mu$ and $\sigma$ are the posterior mean and standard deviation, $\kappa$
+            is a user-defined constant. Also $\frac{\alpha(J)}{\partial J}$ can be computed.
+        \end{itemize}
+    \end{exampleblock}
+    \begin{enumerate}
+        \item We use gradient-driven optimization method (e.g. SLSQP) to minimize $\alpha(J)$.
+              The minimizer $J^*$ dictates the next point to sample the gray-box simulation and
+              to train the twin model. 
+        \item Update $D$ and the posterior distribution.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Bayesian optimization procedure}
+    \begin{center}
+        \includegraphics[width=10cm]{algo.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Example: Bayesian optimization of $x^2$}
+    \begin{center}
+    \includegraphics[width=7cm]{quadratic1.png}
+    \end{center}
+\end{frame}
+\begin{frame}
+    \frametitle{Example: Bayesian optimization of $x^2$}
+    \begin{center}
+    \includegraphics[width=7cm]{quadratic2.png}
+    \end{center}
+\end{frame}
+\begin{frame}
+    \frametitle{Example: Bayesian optimization of $x^2$}
+    \begin{center}
+    \includegraphics[width=7cm]{quadratic3.png}
+    \end{center}
+\end{frame}
+\begin{frame}
+    \frametitle{Example: Bayesian optimization of $x^2$}
+    \begin{center}
+    \includegraphics[width=7cm]{quadratic4.png}
+    \end{center}
+\end{frame}
+\begin{frame}
+    \frametitle{Example: Bayesian optimization of $x^2$}
+    \begin{center}
+    \includegraphics[width=7cm]{quadratic5.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Example: $x^2+2y^2$, posterior mean and standard deviation}
+    \scriptsize
+    \begin{columns}
+        \column{.33\textwidth}
+        \centering
+        \includegraphics[width=5cm]{withnograd.png}\\\vspace{-0.15cm}
+        \includegraphics[width=5cm]{std_2D_nograd.png}\\
+        no gradient
+        \column{.33\textwidth}
+        \centering
+        \includegraphics[width=5cm]{withnoisygrad.png}\\\vspace{-0.15cm}
+        \includegraphics[width=5cm]{std_2D_noisygrad.png}\\
+        noisy gradient
+        \column{.33\textwidth}
+        \centering
+        \includegraphics[width=5cm]{withexactgrad.png}\\\vspace{-0.15cm}
+        \includegraphics[width=5cm]{std_2D_exactgrad.png}\\
+        exact gradient
+    \end{columns}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Example: minimize $x_1^2+\cdots+x_{10}^2$}
+        \begin{center}
+            \includegraphics[width=8cm]{opt_10dim.png}
+        \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Summary}
+    \begin{itemize}
+        \item Twin model has adjoint ability, and can provide approximate gradient.
+        \item The posterior of the objective function is constructed using both the objective function value
+              and the approximate gradient.
+        \item When the input dimension is high, having the approximate gradient information can 
+              be important for obtaining better posterior.
+        \item Bayesian optimization can be used for optimization with twin model.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Immediate next steps}
+    \begin{itemize}
+        \item Estimate the covariance kernel parameters $\xi_1, \xi_2, \sigma_1,\sigma_2$ by maximum likelihood.
+        \item Embed Bayesian optimization into a trust-region framework. Try to prove convergence.
+        \item Showcase the Bayesian optimization method on a 1D twin model example.
+        \item Thesis proposal defense.
+    \end{itemize}
+\end{frame}
+\end{document}
+
